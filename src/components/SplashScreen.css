@@ -1,0 +1,197 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800;900&family=Inter:wght@500;600;700&display=swap');
+
+.splash-screen-wrapper {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    /* Soft gradient matching the video: light blue top-left, white center, purple bottom-right */
+    background: radial-gradient(circle at 15% 15%, #E0F2FE 0%, transparent 40%),
+        radial-gradient(circle at 85% 85%, #E9D5FF 0%, transparent 50%),
+        #FAFAFA;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    z-index: 9999;
+}
+
+/* --- Floating Background Icons --- */
+.floating-icon {
+    position: absolute;
+    opacity: 0.8;
+}
+
+.icon-star {
+    width: 28px;
+    height: 28px;
+    top: 15%;
+    left: 20%;
+    animation: floatSlow 4s ease-in-out infinite;
+}
+
+.icon-rocket {
+    width: 32px;
+    height: 32px;
+    top: 20%;
+    right: 25%;
+    transform: rotate(15deg);
+    animation: floatSlow 5s ease-in-out infinite reverse;
+}
+
+.icon-sparkle {
+    width: 36px;
+    height: 36px;
+    top: 55%;
+    left: 25%;
+    animation: pulseGlow 3s ease-in-out infinite;
+}
+
+.icon-book {
+    width: 28px;
+    height: 28px;
+    bottom: 30%;
+    right: 20%;
+    animation: floatSlow 4.5s ease-in-out infinite;
+}
+
+@keyframes floatSlow {
+
+    0%,
+    100% {
+        transform: translateY(0) rotate(0deg);
+    }
+
+    50% {
+        transform: translateY(-15px) rotate(5deg);
+    }
+}
+
+@keyframes pulseGlow {
+
+    0%,
+    100% {
+        transform: scale(1);
+        opacity: 0.6;
+    }
+
+    50% {
+        transform: scale(1.15);
+        opacity: 1;
+    }
+}
+
+/* --- Main Content --- */
+.splash-main-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    transform: translateY(-20px);
+    animation: slideUpFade 1s ease-out forwards;
+}
+
+.logo-container {
+    margin-bottom: 16px;
+}
+
+.splash-robot-img {
+    width: 180px;
+    height: 180px;
+    animation: hoverRobot 4s ease-in-out infinite;
+}
+
+@keyframes hoverRobot {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+
+
+.splash-subtitle {
+    font-family: 'Outfit', sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: #1E293B;
+    margin: 0 0 8px 0;
+}
+
+.splash-tagline {
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    font-weight: 500;
+    color: #64748B;
+    margin: 0;
+}
+
+@keyframes slideUpFade {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(-20px);
+    }
+}
+
+/* --- Footer Progress Bar --- */
+.splash-footer {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    padding: 0 40px 40px 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    opacity: 0;
+    animation: fadeIn 0.5s ease-out 0.5s forwards;
+}
+
+@keyframes fadeIn {
+    to {
+        opacity: 1;
+    }
+}
+
+.progress-text-container {
+    width: 100%;
+    max-width: 400px;
+    display: flex;
+    justify-content: flex-start;
+    margin-bottom: 12px;
+}
+
+.progress-text {
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: #475569;
+}
+
+.progress-track {
+    width: 100%;
+    max-width: 400px;
+    height: 6px;
+    background: #E2E8F0;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #3B82F6, #06B6D4);
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(6, 182, 212, 0.5);
+    transition: width 0.1s linear;
+    /* Smooth fill */
+}

@@ -1,0 +1,178 @@
+/* NotificationBell.css */
+.notification-wrapper {
+    position: relative;
+    display: inline-block;
+}
+
+.notification-badge {
+    position: absolute;
+    top: -2px;
+    right: -2px;
+    background-color: #EF4444;
+    color: white;
+    font-size: 10px;
+    font-weight: 700;
+    width: 16px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    border: 2px solid white;
+}
+
+.notification-dropdown {
+    position: absolute;
+    top: 120%;
+    right: 0;
+    width: 320px;
+    background: white;
+    border: 1px solid #E5E7EB;
+    border-radius: 16px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    overflow: hidden;
+    animation: dropFadeIn 0.2s ease;
+}
+
+@keyframes dropFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.dropdown-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid #F3F4F6;
+    background: #F8FAFC;
+}
+
+.dropdown-header h3 {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 700;
+    color: #111827;
+}
+
+.dropdown-body {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.dropdown-body::-webkit-scrollbar {
+    width: 6px;
+}
+
+.dropdown-body::-webkit-scrollbar-thumb {
+    background: #CBD5E1;
+    border-radius: 10px;
+}
+
+.empty-notifs {
+    padding: 30px;
+    text-align: center;
+    color: #9CA3AF;
+    font-size: 13px;
+}
+
+.notif-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 16px 20px;
+    border-bottom: 1px solid #F3F4F6;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.notif-item:hover {
+    background: #F8FAFC;
+}
+
+.notif-item.unread {
+    background: #F0FDF4;
+    /* Very light green tint for unread */
+}
+
+.notif-item.unread:hover {
+    background: #DCFCE7;
+}
+
+.notif-icon-wrap {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    flex-shrink: 0;
+}
+
+/* Icon Colors */
+.text-blue {
+    color: #3B82F6;
+}
+
+.text-purple {
+    color: #8B5CF6;
+}
+
+.text-green {
+    color: #10B981;
+}
+
+.text-orange {
+    color: #F97316;
+}
+
+.text-yellow {
+    color: #EAB308;
+}
+
+.text-red {
+    color: #EF4444;
+}
+
+.text-gray {
+    color: #6B7280;
+}
+
+.notif-content {
+    flex: 1;
+}
+
+.notif-content h4 {
+    margin: 0 0 4px 0;
+    font-size: 13px;
+    font-weight: 700;
+    color: #111827;
+}
+
+.notif-content p {
+    margin: 0 0 6px 0;
+    font-size: 12px;
+    color: #4B5563;
+    line-height: 1.4;
+}
+
+.notif-time {
+    font-size: 10px;
+    color: #9CA3AF;
+    font-weight: 500;
+}
+
+.unread-dot {
+    width: 8px;
+    height: 8px;
+    background: #10B981;
+    border-radius: 50%;
+    margin-top: 4px;
+}

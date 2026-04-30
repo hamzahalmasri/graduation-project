@@ -1,0 +1,518 @@
+/* StudentInstructorChat.css */
+
+.full-chat-layout {
+    display: flex;
+    width: 100%;
+    /* Adjust this calc based on your actual navbar height */
+    height: calc(100vh - 60px);
+    background-color: #F8FAFC;
+    font-family: 'DM Sans', sans-serif;
+    overflow: hidden;
+}
+
+.center-layout {
+    justify-content: center;
+    align-items: center;
+}
+
+/* --- SIDEBAR --- */
+.chat-sidebar {
+    width: 320px;
+    min-width: 320px;
+    background-color: #FFFFFF;
+    border-right: 1px solid #E2E8F0;
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar-header {
+    padding: 20px;
+    border-bottom: 1px solid #F1F5F9;
+}
+
+.sidebar-back-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: none;
+    border: none;
+    color: #fafafa;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 10px;
+    margin-bottom: 15px;
+    background-color: #8b5cf6;
+    border-radius: 10px;
+}
+
+.sidebar-header h2 {
+    color: #1E293B;
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 15px;
+}
+
+.search-box {
+    position: relative;
+}
+
+.search-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #94A3B8;
+}
+
+.search-box input {
+    width: 100%;
+    padding: 10px 10px 10px 36px;
+    background-color: #F8FAFC;
+    border: 1px solid #E2E8F0;
+    border-radius: 8px;
+    font-size: 14px;
+    outline: none;
+}
+
+.sidebar-conversations {
+    flex: 1;
+    overflow-y: auto;
+    padding: 15px;
+}
+
+.section-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #94A3B8;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    padding-left: 8px;
+}
+
+.conv-card {
+    display: flex;
+    gap: 12px;
+    padding: 12px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.conv-card.active {
+    background-color: #EFF6FF;
+    border: 1px solid #DBEAFE;
+}
+
+.conv-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #1E1B4B, #312E81);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 600;
+    position: relative;
+    flex-shrink: 0;
+}
+
+.online-badge {
+    position: absolute;
+    bottom: -2px;
+    right: -2px;
+    width: 12px;
+    height: 12px;
+    background-color: #10B981;
+    border: 2px solid white;
+    border-radius: 50%;
+}
+
+.conv-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.conv-name-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+}
+
+.conv-name-row h4 {
+    color: #1E293B;
+    font-size: 14px;
+    font-weight: 600;
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.conv-time {
+    font-size: 11px;
+    color: #94A3B8;
+}
+
+.conv-role,
+.conv-preview {
+    font-size: 12px;
+    color: #64748B;
+    margin: 2px 0 0 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* --- MAIN CHAT AREA --- */
+.chat-main-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background-color: #F8FAFC;
+    min-width: 0;
+}
+
+.main-chat-header {
+    height: 70px;
+    background-color: #FFFFFF;
+    border-bottom: 1px solid #E2E8F0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 24px;
+    flex-shrink: 0;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.header-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #1E1B4B, #312E81);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+}
+
+.header-text h3 {
+    margin: 0;
+    font-size: 15px;
+    color: #1E293B;
+}
+
+.status-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 2px;
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    background-color: #10B981;
+    border-radius: 50%;
+}
+
+.status-row p {
+    margin: 0;
+    font-size: 12px;
+    color: #10B981;
+}
+
+.header-right {
+    display: flex;
+    gap: 8px;
+}
+
+
+.prompt-label {
+    padding: 12px 24px;
+    font-size: 12px;
+    color: #94A3B8;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* Messages Scroll Area */
+.messages-scroll-area {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px 24px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.messages-scroll-area::-webkit-scrollbar {
+    width: 6px;
+}
+
+.messages-scroll-area::-webkit-scrollbar-thumb {
+    background: #CBD5E1;
+    border-radius: 3px;
+}
+
+.message-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 10px;
+    max-width: 70%;
+}
+
+.student-row {
+    align-self: flex-end;
+    flex-direction: row-reverse;
+}
+
+.instructor-row {
+    align-self: flex-start;
+}
+
+.msg-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #1E1B4B, #312E81);
+    color: white;
+    font-size: 10px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.message-bubble {
+    padding: 12px 16px;
+    border-radius: 16px;
+    position: relative;
+}
+
+.message-bubble p {
+    margin: 0;
+    font-size: 14.5px;
+    line-height: 1.5;
+}
+
+.msg-time {
+    display: block;
+    font-size: 10px;
+    margin-top: 6px;
+}
+
+.student-bubble {
+    background: linear-gradient(135deg, #3B82F6, #2563EB);
+    color: white;
+    border-bottom-right-radius: 4px;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+}
+
+.student-bubble .msg-time {
+    color: rgba(255, 255, 255, 0.8);
+    text-align: right;
+}
+
+.instructor-bubble {
+    background-color: #EFF6FF;
+    border: 1px solid #DBEAFE;
+    color: #1E293B;
+    border-bottom-left-radius: 4px;
+}
+
+.instructor-bubble .msg-time {
+    color: #94A3B8;
+}
+
+/* Input Container */
+/* --- Input Container (Unified Long Rectangle Design) --- */
+/* --- Input Container (Unified Long Rectangle Design) --- */
+/* --- Input Container (Unified Long Rectangle Design) --- */
+.input-container {
+    padding: 20px 24px;
+    background-color: #FFFFFF;
+    border-top: 1px solid #E2E8F0;
+    width: 100%;
+    display: block;
+    /* Locks the container width */
+    box-sizing: border-box;
+}
+
+/* The form acts as the long rectangle */
+.input-form {
+    display: flex !important;
+    flex-direction: row !important;
+    /* FORCES horizontal layout */
+    flex-wrap: nowrap !important;
+    /* THE MAGIC FIX: Strictly forbids stacking */
+    align-items: center !important;
+    justify-content: space-between !important;
+    width: 100% !important;
+    /* FORCES it to stretch across the whole container */
+    max-width: 100% !important;
+    background-color: #F8FAFC;
+    border: 1px solid #E2E8F0;
+    border-radius: 16px;
+    padding: 6px 8px;
+    box-sizing: border-box;
+    transition: all 0.3s ease;
+}
+
+.input-form:focus-within {
+    border-color: #3B82F6;
+    background-color: #FFFFFF;
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+}
+
+
+
+/* The actual input becomes completely transparent inside the rectangle */
+.input-form input {
+    flex: 1 1 auto !important;
+    /* FORCES the input to stretch and fill all middle space */
+    width: 100% !important;
+    min-width: 0 !important;
+    /* Prevents long text from blowing out the flexbox */
+    background: transparent !important;
+    border: none !important;
+    padding: 10px 12px;
+    font-size: 14.5px;
+    color: #1E293B;
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+/* The send button sitting flush on the right side */
+.send-btn {
+    width: 44px !important;
+    height: 44px !important;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #3B82F6, #2563EB);
+    color: white;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0 !important;
+    /* Prevents the button from being squished */
+    transition: transform 0.2s;
+}
+
+.send-btn:hover:not(:disabled) {
+    transform: scale(1.05);
+}
+
+.send-btn:disabled {
+    background: #CBD5E1;
+    cursor: not-allowed;
+}
+
+/* --- Archived Sidebar Additions --- */
+.sidebar-section {
+    margin-bottom: 20px;
+}
+
+.archived-toggle-btn {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: transparent;
+    border: none;
+    padding: 8px 0;
+    cursor: pointer;
+}
+
+.archived-toggle-btn:hover .section-label {
+    color: #1E293B;
+}
+
+.archived-list {
+    margin-top: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.conv-card.archived {
+    opacity: 0.7;
+    background-color: #F8FAFC;
+    border: 1px solid transparent;
+}
+
+.conv-card.archived:hover {
+    opacity: 1;
+    background-color: #F1F5F9;
+}
+
+.conv-card.archived.active {
+    opacity: 1;
+    background-color: #F1F5F9;
+    border: 1px solid #E2E8F0;
+}
+
+.archived-avatar {
+    background: #94A3B8;
+    /* Gray out the avatar */
+}
+
+/* --- Read Only & System UI --- */
+.system-message {
+    text-align: center;
+    margin: 15px 0;
+}
+
+.system-message span {
+    background: #F1F5F9;
+    color: #64748B;
+    font-size: 11px;
+    padding: 6px 14px;
+    border-radius: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.archived-bubble {
+    background-color: #F8FAFC;
+    /* Softer gray for old messages */
+    color: #475569;
+}
+
+.read-only-notice {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 14px;
+    background-color: #F1F5F9;
+    border-radius: 12px;
+    color: #64748B;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.message-input {
+    flex: 1;
+    background-color: #F8FAFC;
+    border: 1px solid #E2E8F0;
+    padding: 12px 16px;
+    border-radius: 12px;
+    font-size: 14px;
+    color: #1E293B;
+    outline: none;
+    transition: all 0.2s;
+    width: 100%;
+}
