@@ -5,7 +5,7 @@ import { sendRoadmapChatMessage, generateUserRoadmap } from '../api/roadmapServi
 import logo from '../assets/logo.png';
 import './AiChatbot.css';
 
-// 🧠 Backend Extraction Logic (Untouched)
+// 🧠 Backend Extraction Logic
 const extractOptions = (text) => {
     if (!text || typeof text !== 'string') return [];
     const lines = text.split('\n');
@@ -14,6 +14,16 @@ const extractOptions = (text) => {
         .map(line => line.trim().replace(/^-\s*/, '').trim())
         .filter(opt => opt.length > 0);
 };
+
+// 🚨 Define the exact order of questions expected by the backend
+const QUESTION_KEYS = [
+    'learningPath',
+    'roadmapLength',
+    'learningStyle',
+    'weeklyStudyTime',
+    'mainGoal',
+    'confidenceLevel'
+];
 
 const AiChatbot = () => {
     const navigate = useNavigate();
@@ -25,6 +35,16 @@ const AiChatbot = () => {
     const [inputText, setInputText] = useState('');
     const [isTyping, setIsTyping] = useState(false);
     const [isGenerating, setIsGenerating] = useState(false);
+
+    // 🚨 NEW: Track the user's explicit answers
+    const [answers, setAnswers] = useState({
+        learningPath: "",
+        roadmapLength: "",
+        learningStyle: "",
+        weeklyStudyTime: "",
+        mainGoal: "",
+        confidenceLevel: ""
+    });
 
     const [currentOptions, setCurrentOptions] = useState(() => {
         return extractOptions(messages?.text || "");
@@ -39,8 +59,25 @@ const AiChatbot = () => {
 
     useEffect(() => { scrollToBottom(); }, [messages, isTyping, currentOptions]);
 
+    // 🚨 NEW: Helper function to save the answer to the correct state key
+    const saveAnswer = (userResponse) => {
+        // Count how many user messages exist BEFORE this new one is added.
+        // If 0 user messages exist, this response maps to index 0 (learningPath), etc.
+        const userMessageCount = messages.filter(m => m.sender === 'user').length;
+
+        if (userMessageCount < QUESTION_KEYS.length) {
+            const currentKey = QUESTION_KEYS[userMessageCount];
+            setAnswers(prev => ({
+                ...prev,
+                [currentKey]: userResponse
+            }));
+        }
+    };
+
     const handleOptionClick = async (option) => {
         if (isTyping || isGenerating) return;
+
+        saveAnswer(option); // Save the answer to state!
 
         setCurrentOptions([]);
         setMessages(prev => [...prev, { sender: 'user', text: option }]);
@@ -63,6 +100,9 @@ const AiChatbot = () => {
 
         const userMsg = inputText.trim();
         setInputText('');
+
+        saveAnswer(userMsg); // Save the manually typed answer to state!
+
         setCurrentOptions([]);
         setMessages(prev => [...prev, { sender: 'user', text: userMsg }]);
         setIsTyping(true);
@@ -88,7 +128,19 @@ const AiChatbot = () => {
 
         setIsGenerating(true);
         try {
-            const newRoadmap = await generateUserRoadmap(studentId);
+            // 🚨 NEW: Package the fully tracked answers exactly how the backend requested
+            const requestPayload = {
+                userId: studentId,
+                learningPath: answers.learningPath,
+                roadmapLength: answers.roadmapLength,
+                learningStyle: answers.learningStyle,
+                weeklyStudyTime: answers.weeklyStudyTime,
+                mainGoal: answers.mainGoal,
+                confidenceLevel: answers.confidenceLevel
+            };
+
+            const newRoadmap = await generateUserRoadmap(requestPayload);
+
             if (newRoadmap && newRoadmap.id) {
                 navigate(`/roadmap/${newRoadmap.id}`);
             } else {
@@ -130,11 +182,9 @@ const AiChatbot = () => {
                         <div className="ai-roadmap-robot-status">
                             <span className="ai-roadmap-status-dot"></span> EduBot is here to help
                         </div>
-                        {/* 🎥 ROBOT VIDEO HERE */}
                         <div className="ai-roadmap-video-wrapper">
                             <video autoPlay loop muted playsInline className="ai-roadmap-video" >
                                 <source src="/videos/Robot_Chatting_and_Using_Phone.webm" type="video/webm" />
-                                {/* Fallback if video fails to load */}
                                 Your browser does not support the video tag.
                             </video>
                         </div>
@@ -247,14 +297,9 @@ const AiChatbot = () => {
             {/* 🎥 Fullscreen Video Loading Overlay */}
             {isGenerating && (
                 <div className="ai-roadmap-loading-overlay">
-                    {/* LOADING VIDEO HERE */}
-
-
                     <video autoPlay loop muted playsInline className="ai-roadmap-loading-video">
                         <source src="/videos/Robot_Head_Loading_Screen.webm" type="video/webm" />
                     </video>
-
-
                 </div>
             )}
         </div>

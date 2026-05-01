@@ -1,9 +1,6 @@
 const BASE_URL = 'https://coeducational-xochitl-branchiform.ngrok-free.dev/api/roadmaps';
 const PROGRESS_URL = 'https://coeducational-xochitl-branchiform.ngrok-free.dev/api/progress';
 
-/*const BASE_URL = 'https://eduguide-t7xp.onrender.com/api/roadmaps';
-const PROGRESS_URL = 'https://eduguide-t7xp.onrender.com/api/progress';*/
-
 const getHeaders = () => {
     const token = localStorage.getItem('token');
     return {
@@ -33,18 +30,22 @@ export const sendRoadmapChatMessage = async (messageText) => {
     return await response.text();
 };
 
-// 2. Generate & Save Roadmap
-export const generateUserRoadmap = async (userId) => {
-    if (!userId) throw new Error("Missing User ID");
-
+// 2. Generate & Save Roadmap (🚨 NEW UPDATED API PAYLOAD)
+export const generateUserRoadmap = async (data) => {
     const response = await fetch(`${BASE_URL}/generate`, {
         method: 'POST',
         headers: getHeaders(),
         body: JSON.stringify({
-            question: "generate roadmap",
-            userId: userId.toString()
+            userId: data.userId.toString(),
+            learningPath: data.learningPath,
+            roadmapLength: data.roadmapLength,
+            learningStyle: data.learningStyle,
+            weeklyStudyTime: data.weeklyStudyTime,
+            mainGoal: data.mainGoal,
+            confidenceLevel: data.confidenceLevel
         })
     });
+
     if (!response.ok) throw new Error('Failed to generate roadmap');
     return await response.json();
 };

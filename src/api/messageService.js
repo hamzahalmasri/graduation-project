@@ -3,10 +3,15 @@ const BASE_URL = 'https://coeducational-xochitl-branchiform.ngrok-free.dev/api/m
 
 //const BASE_URL = 'https://eduguide-t7xp.onrender.com/api/messages';
 
-const getHeaders = () => ({
-    'Content-Type': 'application/json',
-    'ngrok-skip-browser-warning': 'true'
-});
+const getHeaders = () => {
+    const token = localStorage.getItem('token');
+    return {
+        'Content-Type': 'application/json',
+        'ngrok-skip-browser-warning': 'true',
+        // This token is required to prove to the backend who is sending the message!
+        ...(token && { 'Authorization': `Bearer ${token}` })
+    };
+};
 
 // Helper to get the logged-in user's ID
 const getUserId = () => {

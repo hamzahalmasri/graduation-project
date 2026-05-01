@@ -640,6 +640,153 @@
     background: #F9FAFB;
 }
 
+/* --- Instructor Skills Capsules --- */
+.instructor-skills {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 6px;
+    margin-bottom: 16px;
+    /* Spacing before the experience text */
+}
+
+.badge-skill {
+    background: #FFFFFF;
+    border: 1px solid #E5E7EB;
+    color: #6B7280;
+    font-size: 10px;
+    font-weight: 500;
+    padding: 3px 8px;
+    border-radius: 12px;
+}
+
+.badge-skill-more {
+    background: #F9FAFB;
+    border: 1px dashed #D1D5DB;
+    color: #9CA3AF;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 3px 6px;
+    border-radius: 12px;
+    cursor: pointer;
+    /* Makes it look clickable */
+    transition: all 0.2s;
+}
+
+.badge-skill-more:hover {
+    background: #F3F4F6;
+    border-color: #9CA3AF;
+    color: #4B5563;
+}
+
+.back-button-modern {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #8B5CF6;
+    font-weight: 700;
+    margin-bottom: 32px;
+    padding: 0;
+}
+
+.mentors-header-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 40px;
+}
+
+.find-guide-badge {
+    color: #F97316;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    display: block;
+}
+
+.status-floating-card {
+    background: #FFFFFF;
+    padding: 16px 24px;
+    border-radius: 16px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border: 1px solid #F1F5F9;
+}
+
+.status-label {
+    font-size: 10px;
+    font-weight: 700;
+    color: #94A3B8;
+    letter-spacing: 1px;
+}
+
+.status-active {
+    color: #10B981;
+    font-weight: 800;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 4px 0;
+}
+
+.status-sub {
+    font-size: 11px;
+    color: #94A3B8;
+}
+
+/* Categories */
+.categories-scroll-wrapper {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    padding-bottom: 16px;
+    margin-bottom: 24px;
+}
+
+.categories-scroll-wrapper::-webkit-scrollbar {
+    display: none;
+}
+
+.category-pill {
+    padding: 10px 20px;
+    background: #FFFFFF;
+    color: #64748B;
+    border: 1px solid #E2E8F0;
+    border-radius: 24px;
+    font-size: 13px;
+    font-weight: 700;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.category-pill:hover {
+    background: #F8FAFC;
+    color: #1E293B;
+}
+
+.category-pill.active {
+    background: #1E293B;
+    color: #FFFFFF;
+    border-color: #1E293B;
+}
+
+.section-divider {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 24px;
+    margin-top: 16px;
+}
+
 @media (max-width: 900px) {
 
     .quick-actions-grid,

@@ -1,0 +1,247 @@
+/* --- Modern Mentors List Design --- */
+
+.back-button-modern {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #8B5CF6;
+    font-weight: 700;
+    margin-bottom: 32px;
+    padding: 0;
+}
+
+.mentors-header-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 40px;
+}
+
+.find-guide-badge {
+    color: #F97316;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    display: block;
+}
+
+.status-floating-card {
+    background: #FFFFFF;
+    padding: 16px 24px;
+    border-radius: 16px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border: 1px solid #F1F5F9;
+}
+
+.status-label {
+    font-size: 10px;
+    font-weight: 700;
+    color: #94A3B8;
+    letter-spacing: 1px;
+}
+
+.status-active {
+    color: #10B981;
+    font-weight: 800;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 4px 0;
+}
+
+.status-sub {
+    font-size: 11px;
+    color: #94A3B8;
+}
+
+/* Categories */
+.categories-scroll-wrapper {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    padding-bottom: 16px;
+    margin-bottom: 24px;
+}
+
+.categories-scroll-wrapper::-webkit-scrollbar {
+    display: none;
+}
+
+.category-pill {
+    padding: 10px 20px;
+    background: #FFFFFF;
+    color: #64748B;
+    border: 1px solid #E2E8F0;
+    border-radius: 24px;
+    font-size: 13px;
+    font-weight: 700;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.category-pill:hover {
+    background: #F8FAFC;
+    color: #1E293B;
+}
+
+.category-pill.active {
+    background: #1E293B;
+    color: #FFFFFF;
+    border-color: #1E293B;
+}
+
+.section-divider {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 24px;
+    margin-top: 16px;
+}
+
+/* Grid & Cards */
+/* Grid & Cards */
+.modern-instructors-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 24px;
+}
+
+.modern-instructor-card {
+    background: #FFFFFF;
+    border-radius: 20px;
+    padding: 24px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #F1F5F9;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.modern-instructor-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+}
+
+.card-top-border {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 6px;
+}
+
+.card-header-row {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    margin-bottom: 16px;
+    margin-top: 8px;
+}
+
+.modern-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    font-weight: 800;
+}
+
+.modern-instructor-name {
+    font-size: 18px;
+    font-weight: 800;
+    color: #1E293B;
+    margin: 0 0 4px 0;
+}
+
+.expertise-line {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #64748B;
+    font-size: 13px;
+    margin-bottom: 16px;
+}
+
+.modern-bio {
+    font-size: 14px;
+    color: #475569;
+    line-height: 1.5;
+    margin-bottom: 24px;
+}
+
+.badge-skill-modern {
+    background: #F1F5F9;
+    color: #475569;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 6px 12px;
+    border-radius: 8px;
+}
+
+.badge-skill-more-modern {
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    color: #64748B;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 5px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+/* NEW: Years of Experience Styling */
+.instructor-exp-modern {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #64748B;
+    font-size: 12px;
+    font-weight: 600;
+    margin-bottom: 20px;
+    padding-top: 12px;
+    border-top: 1px solid #F1F5F9;
+}
+
+.btn-request-modern {
+    width: 100%;
+    padding: 12px;
+    background: #F8FAFC;
+    color: #475569;
+    border: 1px solid #E2E8F0;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.2s;
+}
+
+.btn-request-modern:hover:not(:disabled) {
+    background: #F1F5F9;
+    color: #1E293B;
+}
+
+.btn-request-modern.requested {
+    background: #10B981;
+    color: #FFFFFF;
+    border-color: #10B981;
+}

@@ -1,13 +1,15 @@
-// Keeping the ngrok format
 const BASE_URL = 'https://coeducational-xochitl-branchiform.ngrok-free.dev/api/assignments';
-//const BASE_URL = 'https://eduguide-t7xp.onrender.com/api/assignments';
 
-const getHeaders = () => ({
-    'Content-Type': 'application/json',
-    'ngrok-skip-browser-warning': 'true'
-});
+const getHeaders = () => {
+    const token = localStorage.getItem('token');
+    return {
+        'Content-Type': 'application/json',
+        'ngrok-skip-browser-warning': 'true',
+        // This token is required to fetch the user's private assignments!
+        ...(token && { 'Authorization': `Bearer ${token}` })
+    };
+};
 
-// Fetch the student's active assignment to get the assignmentId
 export const getStudentAssignment = async () => {
     const studentId = localStorage.getItem('studentId');
     if (!studentId) throw new Error("Student ID not found");

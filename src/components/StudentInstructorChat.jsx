@@ -18,7 +18,7 @@ const StudentInstructorChat = () => {
     const [selectedAssignmentId, setSelectedAssignmentId] = useState(null);
     const [messages, setMessages] = useState([]); // Holds messages for the CURRENTLY selected chat
     const [inputText, setInputText] = useState('');
-    const [isSending, setIsSending] = useState(false);
+    // const [isSending, setIsSending] = useState(false);
     const [isArchivedOpen, setIsArchivedOpen] = useState(true);
     const [error, setError] = useState(null);
 
@@ -34,14 +34,23 @@ const StudentInstructorChat = () => {
                     return;
                 }
 
-                setAssignments(assignmentData);
+                // FIX: Normalize the data so React definitively knows if it is active!
+                // This checks 'active', 'isActive', OR if the status is simply 'APPROVED'
+                // STRICT NORMALIZER: Only allow chatting if the backend explicitly says isActive is true!
+                const normalizedAssignments = assignmentData.map(a => ({
+                    ...a,
+                    // If the backend has an 'isActive' boolean, trust it 100%. Otherwise fallback to checking the status.
+                    active: a.isActive !== undefined ? a.isActive : (a.active === true || a.status === 'APPROVED')
+                }));
+
+                setAssignments(normalizedAssignments);
 
                 // Automatically select the active assignment (or the first one if none are active)
-                const activeAssig = assignmentData.find(a => a.active === true);
+                const activeAssig = normalizedAssignments.find(a => a.active === true);
                 if (activeAssig) {
                     setSelectedAssignmentId(activeAssig.id);
                 } else {
-                    setSelectedAssignmentId(assignmentData.id);
+                    setSelectedAssignmentId(normalizedAssignments[0].id);
                 }
 
             } catch (err) {
@@ -66,10 +75,13 @@ const StudentInstructorChat = () => {
 
                 // Tell the backend we read them!
                 markConversationAsRead(selectedAssignmentId).catch(e => console.error("Could not mark read", e));
-
-                setIsLoading(false);
             } catch (err) {
                 console.error("Failed to load messages:", err);
+                // FIX: If the API fails (e.g., no messages yet), default to an empty chat so the page still loads!
+                setMessages([]);
+            } finally {
+                // THE MAGIC FIX: Always tell React to stop loading, even if the API threw an error!
+                setIsLoading(false);
             }
         };
 
@@ -85,27 +97,50 @@ const StudentInstructorChat = () => {
     useEffect(() => { scrollToBottom(); }, [messages]);
 
     // 3. Handle Sending Real Messages
+    // 3. Handle Sending Real Messages (With Optimistic UI)
     const handleSendMessage = async (e) => {
         e.preventDefault();
         const activeAssignment = assignments.find(a => a.id === selectedAssignmentId);
 
-        if (!inputText.trim() || isSending || !activeAssignment?.active) return;
+        if (!inputText.trim() || !activeAssignment?.active) return;
 
         const userMsg = inputText.trim();
         setInputText(''); // Clear input instantly for UX
-        setIsSending(true);
+
+        // 🚀 OPTIMISTIC UPDATE: Create a temporary message to show instantly
+        const tempMessageId = `temp-${Date.now()}`;
+        const currentUserId = localStorage.getItem('studentId');
+
+        const tempMessage = {
+            id: tempMessageId,
+            content: userMsg,
+            senderId: currentUserId,
+            senderRole: 'STUDENT',
+            createdAt: new Date().toISOString() // Current time
+        };
+
+        // Instantly put it on the screen before the backend even thinks about it!
+        setMessages(prev => [...prev, tempMessage]);
 
         try {
-            // Send to Java Backend
-            const newMessage = await sendInstructorMessage(selectedAssignmentId, userMsg);
+            // Quietly send to Java Backend in the background
+            const savedMessage = await sendInstructorMessage(selectedAssignmentId, userMsg);
 
-            // Append the actual response from the backend to the UI
-            setMessages(prev => [...prev, newMessage]);
-        } catch (alert) {
-            alert("Failed to send message. Please try again.");
-            setInputText(userMsg); // Put text back if failed
-        } finally {
-            setIsSending(false);
+            // Once the backend replies, swap our temporary message with the real one (so it has the real database ID)
+            // If your backend just returns "success", you can delete this setMessages line!
+            if (savedMessage && savedMessage.id) {
+                setMessages(prev => prev.map(msg =>
+                    msg.id === tempMessageId ? savedMessage : msg
+                ));
+            }
+
+        } catch (err) { // 🚨 FIX: Changed 'alert' to 'err' so the pop-up actually works!
+            console.error("Failed to send message to backend:", err);
+            window.alert("Failed to send message. Please check your connection.");
+
+            // If the backend failed, remove the fake message and put their text back in the box
+            setMessages(prev => prev.filter(msg => msg.id !== tempMessageId));
+            setInputText(userMsg);
         }
     };
 
@@ -309,9 +344,9 @@ const StudentInstructorChat = () => {
                                 placeholder="Type your message..."
                                 value={inputText}
                                 onChange={(e) => setInputText(e.target.value)}
-                                disabled={isSending}
+                            /* Removed disabled={isSending} */
                             />
-                            <button type="submit" className="send-btn" disabled={!inputText.trim() || isSending}>
+                            <button type="submit" className="send-btn" disabled={!inputText.trim()}>
                                 <Send size={18} />
                             </button>
                         </form>

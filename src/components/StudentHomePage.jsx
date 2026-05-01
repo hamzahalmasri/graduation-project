@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Bell, UserCircle, MessageSquare, Map, BrainCircuit, Target, Award, Flame, Play, BotMessageSquare, LogOut, ChevronRight, BookOpen, Star } from 'lucide-react';
+import { Bell, UserCircle, MessageSquare, Map, BrainCircuit, Target, Award, Flame, Play, BotMessageSquare, LogOut, ChevronRight, BookOpen, Star, Code, CheckCircle2 } from 'lucide-react';
 import NotificationBell from './NotificationBell';
 import { getUserRoadmaps, getStudentProgress } from '../api/roadmapService';
 import { getStudentAssignment } from '../api/assignmentService';
@@ -8,17 +8,34 @@ import { getTopInstructors, requestInstructor } from '../api/instructorService';
 import green from '../assets/green.svg';
 import robotPhone from '../assets/phone-robot.svg';
 import logo from '../assets/logo.png';
+import './InstructorsList.css';
 import './StudentHomePage.css';
+
+const cardColors = ['#0ea5e9', '#ea580c', '#22c55e', '#eab308', '#8b5cf6', '#3b82f6'];
 
 const StudentHomePage = () => {
     const navigate = useNavigate();
     const [userData, setUserData] = useState(null);
     const [topInstructors, setTopInstructors] = useState([]);
     const [isRequesting, setIsRequesting] = useState(false);
+    const [expandedSkills, setExpandedSkills] = useState({});
+
+    const toggleSkills = (e, instructorId) => {
+        e.stopPropagation();
+        setExpandedSkills(prev => ({
+            ...prev,
+            [instructorId]: !prev[instructorId]
+        }));
+    };
 
     const handleLogout = () => {
         localStorage.clear();
         navigate('/');
+    };
+
+    const getInitials = (name) => {
+        if (!name) return "IN";
+        return name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
     };
 
     const fetchDashboardData = async () => {
@@ -40,12 +57,10 @@ const StudentHomePage = () => {
                 latestRoadmap = roadmaps[0];
                 currentPath = latestRoadmap.learningPath || latestRoadmap.mainGoal || "Custom Path";
 
-                // DEEP PARSE FIX FOR PROGRESS BUG
                 try {
                     let contentObj = latestRoadmap.roadmapContent;
                     if (typeof contentObj === 'string') {
                         contentObj = JSON.parse(contentObj);
-                        // Failsafe for double-stringified JSON
                         if (typeof contentObj === 'string') {
                             contentObj = JSON.parse(contentObj);
                         }
@@ -56,18 +71,11 @@ const StudentHomePage = () => {
                 }
 
                 // 2. Fetch Dynamic Progress
-                // 2. Fetch Dynamic Progress
                 const progressData = await getStudentProgress(studentId, latestRoadmap.id);
-
-                // Filter to only get COMPLETED records
                 const completedRecords = progressData.filter(p => p.status === 'COMPLETED' || p.status?.toUpperCase() === 'COMPLETED');
-
-                // FIX: Use a Set to ensure we don't count duplicate clicks on the same step!
                 const uniqueCompletedSteps = new Set(completedRecords.map(p => `${p.phaseTitle}|${p.stepTitle}`));
 
                 currentStep = uniqueCompletedSteps.size;
-
-                // FIX: Clamp the percentage to a maximum of 100% so it never overflows
                 progressPercentage = totalSteps === 0 ? 0 : Math.min(100, Math.round((currentStep / totalSteps) * 100));
             }
 
@@ -92,6 +100,7 @@ const StudentHomePage = () => {
                 totalSteps,
                 roadmapId: latestRoadmap ? latestRoadmap.id : null,
                 instructorStatus: activeAssignment ? activeAssignment.status : null,
+                requestedInstructorId: activeAssignment?.instructor?.id || null, // Tracking WHO was requested
                 instructorNote: activeAssignment ? activeAssignment.note : null,
                 quizzesCompleted: 12,
                 bestScore: 98,
@@ -117,7 +126,15 @@ const StudentHomePage = () => {
             setIsRequesting(true);
             await requestInstructor(userData.studentId, instructorId);
             alert("Request sent successfully! Waiting for admin approval.");
-            fetchDashboardData(); // Refresh UI to show "PENDING"
+
+            // Optimistic UI Update: Instantly turn this specific button green
+            setUserData(prev => ({
+                ...prev,
+                instructorStatus: 'PENDING',
+                requestedInstructorId: instructorId
+            }));
+
+            fetchDashboardData(); // Refresh data quietly in the background
         } catch (e) {
             alert("Failed to send request. Please try again.", e);
         } finally {
@@ -222,36 +239,69 @@ const StudentHomePage = () => {
                     </div>
                 </section>
 
-                {/* NEW: Top Instructors Section */}
+                {/* NEW: Top Instructors Section with Modern Design */}
                 <div className="section-header-row">
                     <h2 className="section-title">Top Instructors</h2>
                     <button className="btn-text-purple" onClick={() => navigate('/instructors')}>View All Instructors →</button>
                 </div>
-                <section className="instructors-grid">
-                    {topInstructors.length > 0 ? topInstructors.map(instructor => (
-                        <div key={instructor.id} className="instructor-card">
-                            <div className="instructor-avatar">
-                                <UserCircle size={40} color="#8B5CF6" />
-                            </div>
-                            <h3 className="instructor-name">{instructor.fullName}</h3>
-                            <div className="instructor-badges">
-                                {instructor.expertiseFields?.slice(0, 2).map((field, idx) => (
-                                    <span key={idx} className="badge-field">{field.replace('_', ' ')}</span>
-                                ))}
-                            </div>
-                            <p className="instructor-exp"><Award size={14} /> {instructor.yearsOfExperience || 0} Years Experience</p>
+                <section className="modern-instructors-grid" style={{ marginBottom: '32px' }}>
+                    {topInstructors.length > 0 ? topInstructors.slice(0, 3).map((instructor, index) => {
+                        const color = cardColors[index % cardColors.length];
+                        const isThisInstructorRequested = userData.requestedInstructorId === instructor.id;
+                        const isAnyRequestActive = userData.instructorStatus === 'PENDING' || userData.instructorStatus === 'APPROVED';
 
-                            <button
-                                className="btn-request-instructor"
-                                disabled={isRequesting || userData.instructorStatus === 'PENDING' || userData.instructorStatus === 'APPROVED'}
-                                onClick={() => handleInstructorRequest(instructor.id)}
-                            >
-                                {(userData.instructorStatus === 'PENDING' || userData.instructorStatus === 'APPROVED')
-                                    ? 'Request Disabled'
-                                    : 'Request Mentor'}
-                            </button>
-                        </div>
-                    )) : (
+                        return (
+                            <div key={instructor.id} className="modern-instructor-card">
+                                <div className="card-top-border" style={{ backgroundColor: color }}></div>
+
+                                <div className="card-header-row">
+                                    <div className="modern-avatar" style={{ backgroundColor: color }}>
+                                        {getInitials(instructor.fullName)}
+                                    </div>
+                                </div>
+
+                                <h3 className="modern-instructor-name">{instructor.fullName}</h3>
+
+                                <div className="expertise-line">
+                                    <Code size={14} style={{ flexShrink: 0 }} />
+                                    <span style={{ display: 'inline-block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                        {instructor.expertiseFields?.map(f => f.replace('_', ' ')).join(', ')}
+                                    </span>
+                                </div>
+
+                                <p className="modern-bio" style={{ fontStyle: instructor.bio ? 'normal' : 'italic', color: instructor.bio ? '#475569' : '#94A3B8' }}>
+                                    "{instructor.bio || "This instructor hasn't added a bio yet."}"
+                                </p>
+
+                                <div className="instructor-skills" style={{ justifyContent: 'flex-start', marginTop: 'auto', marginBottom: '16px' }}>
+                                    {instructor.skills?.slice(0, expandedSkills[instructor.id] ? instructor.skills.length : 3).map((skill, idx) => (
+                                        <span key={idx} className="badge-skill-modern">{skill}</span>
+                                    ))}
+
+                                    {instructor.skills?.length > 3 && (
+                                        <span
+                                            className="badge-skill-more-modern"
+                                            onClick={(e) => toggleSkills(e, instructor.id)}
+                                        >
+                                            {expandedSkills[instructor.id] ? 'Less' : `+${instructor.skills.length - 3}`}
+                                        </span>
+                                    )}
+                                </div>
+
+                                <div className="instructor-exp-modern">
+                                    <Award size={14} /> {instructor.yearsOfExperience || 0} Years Experience
+                                </div>
+
+                                <button
+                                    className={`btn-request-modern ${isThisInstructorRequested ? 'requested' : ''}`}
+                                    disabled={isRequesting || isAnyRequestActive}
+                                    onClick={() => handleInstructorRequest(instructor.id)}
+                                >
+                                    {isThisInstructorRequested ? <><CheckCircle2 size={16} /> Requested</> : 'Request Mentor'}
+                                </button>
+                            </div>
+                        );
+                    }) : (
                         <p className="no-data-text">No instructors available right now.</p>
                     )}
                 </section>
