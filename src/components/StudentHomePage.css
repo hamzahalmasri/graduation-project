@@ -1,10 +1,15 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@600;700;800&display=swap');
 
+/* 🚨 Glow Background */
 .student-home-container {
-    background-color: #F8FAFC;
+    display: flex;
     min-height: 100vh;
     font-family: 'Inter', sans-serif;
     color: #111827;
+    background: radial-gradient(circle at 15% 15%, #E0F2FE 0%, transparent 40%),
+        radial-gradient(circle at 85% 85%, #E9D5FF 0%, transparent 50%),
+        #F8FAFC;
+    position: relative;
 }
 
 .loading-screen {
@@ -14,111 +19,170 @@
     align-items: center;
 }
 
-/* --- Navbar --- */
-.top-navbar {
+/* --- 🚨 Sidebar Setup --- */
+.sidebar {
+    width: 250px;
+    height: 100vh;
+    position: sticky;
+    top: 0;
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 16px 40px;
-    background-color: #FFFFFF;
-    border-bottom: 1px solid #E5E7EB;
+    flex-direction: column;
+    padding: 32px 24px;
+    background: #2D1B69;
+    /* Pure white */
+    /*border-right: 1px solid #E5E7EB;*/
+    z-index: 100;
 }
 
-.nav-left {
+.sidebar-logo {
     display: flex;
-    align-items: center;
-    gap: 40px;
+    justify-content: center;
+    margin-bottom: 24px;
+    /* Adjusted spacing */
+    padding-bottom: 32px;
+    /* Space for the line */
+    position: relative;
+    /* Required to position the line */
 }
 
-.brand-logo {
-    display: flex;
-    align-items: center;
-    gap: 8px;
+/* ✨ The beautiful fading line under the logo */
+.sidebar-logo::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0) 100%);
 }
 
 .logo-image {
-    width: 80px;
-    height: 80px;
+    width: 100px;
+    height: 100px;
 }
 
-.brand-text {
-    font-family: 'Outfit', sans-serif;
-    font-size: 20px;
-    font-weight: 800;
-    color: #5B3DF5;
-}
-
-.nav-links {
+.sidebar-nav {
     display: flex;
-    gap: 24px;
+    flex-direction: column;
+    gap: 12px;
 }
 
-.nav-links button {
-    background: none;
+.sidebar-nav button {
+    background: transparent;
     border: none;
-    color: #6B7280;
-    font-size: 14px;
-    font-weight: 500;
+    color: rgba(255, 255, 255, 0.65);
+    /* Soft light text */
+    font-size: 15px;
+    font-weight: 600;
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 12px;
+    padding: 14px 16px;
+    border-radius: 12px;
     cursor: pointer;
-    transition: color 0.2s;
+    transition: all 0.2s;
 }
 
-.nav-links button:hover {
-    color: #111827;
+.sidebar-nav button:hover {
+    background: rgba(255, 255, 255, 0.1);
+    /* Subtle white highlight */
+    color: #FFFFFF;
+    /* Bright white on hover */
 }
 
-.nav-right {
+.sidebar-logout {
+    margin-top: auto;
+    /* Pushes it to the bottom */
+    background: transparent;
+    border: none;
+    color: #F87171;
+    /* Lighter, vibrant red for dark background */
+    font-size: 15px;
+    font-weight: 700;
     display: flex;
     align-items: center;
-    gap: 16px;
-}
-
-.icon-btn {
-    background: none;
-    border: none;
-    color: #6B7280;
+    gap: 12px;
+    padding: 14px 16px;
+    border-radius: 12px;
     cursor: pointer;
+    transition: all 0.2s;
     position: relative;
-    padding: 8px;
-    border-radius: 50%;
-    transition: background 0.2s;
 }
 
-.icon-btn:hover {
-    background: #F3F4F6;
-    color: #111827;
+.sidebar-logout::before {
+    content: '';
+    position: absolute;
+    top: -24px;
+    /* Pushes the line 24px above the button */
+    left: 0;
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0) 100%);
+    pointer-events: none;
+    /* Ensures the line doesn't block any clicks */
 }
 
+.sidebar-logout:hover {
+    background: rgba(239, 68, 68, 0.15);
+    /* Soft red background highlight */
+    color: #FCA5A5;
+}
 
-/* --- Main Content --- */
+/* --- Main Content Area --- */
 .main-content {
-    max-width: 1100px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    width: calc(100% - 250px);
+    position: relative;
+}
+
+/* 🚨 Floating Notification Modernized */
+.floating-notification {
+    position: absolute;
+    top: 24px;
+    right: 48px;
+    /* Aligned exactly with the banner's inner padding */
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
+
+
+.page-inner-content {
+    padding: 21px 48px 48px 48px;
+    max-width: 1600px;
     margin: 0 auto;
-    padding: 32px 20px;
+    width: 100%;
 }
 
 .section-title {
     font-family: 'Outfit', sans-serif;
-    font-size: 18px;
+    font-size: 20px;
     font-weight: 700;
-    margin: 32px 0 16px 0;
-    color: #111827;
+    margin: 0 0 20px 0;
+    color: #1E293B;
 }
 
-/* --- Hero Banner --- */
+/* --- 🚨 Hero Banner --- */
 .hero-banner {
-    background: linear-gradient(135deg, #4220A9 0%, #7C3AED 100%);
-    border-radius: 24px;
-    padding: 40px;
+    /* 🚨 🚨 New Blue to Cyan Gradient from image_132.png */
+    background: linear-gradient(135deg, #5B3DF5 0%, #06B6D4 100%);
+    /* Curves maintained on the bottom right/left */
+    border-radius: 0 0 48px 48px;
+    padding: 18px 48px;
+    /* Smaller height */
     display: flex;
     justify-content: space-between;
     align-items: center;
     color: white;
+    /* 🚨 White Text for dark banner */
     position: relative;
     overflow: hidden;
+    width: 100%;
 }
 
 .hero-content {
@@ -140,19 +204,20 @@
 
 .hero-title {
     font-family: 'Outfit', sans-serif;
-    font-size: 40px;
+    font-size: 27px;
     line-height: 1.2;
     margin: 0 0 12px 0;
 }
 
 .highlight-yellow {
     color: #FBBF24;
+    margin-bottom: 10%;
 }
 
 .hero-subtext {
     font-size: 14px;
     color: rgba(255, 255, 255, 0.85);
-    margin-bottom: 24px;
+    margin-bottom: 16px;
     line-height: 1.5;
 }
 
@@ -160,7 +225,7 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    margin-bottom: 24px;
+    margin-bottom: 13px;
     font-size: 13px;
     font-weight: 600;
     color: #FBBF24;
@@ -205,15 +270,26 @@
     transform: translateY(-2px);
 }
 
+/* Image correctly shrunk to fit the smaller banner */
 .hero-image-placeholder {
     z-index: 1;
-    margin-right: 40px;
-    height: 200px;
-    width: 200px;
+    margin-right: 20px;
+    height: 140px;
+    /* Reduced from 200px */
+    width: 140px;
+    /* Reduced from 200px */
     display: flex;
     align-items: center;
     justify-content: center;
     animation: float-hero 4s ease-in-out infinite;
+}
+
+.hero-image {
+    /*max-width: 60%;
+    max-height: 60%;*/
+    object-fit: contain;
+    margin-right: 250%;
+    margin-bottom: 30%;
 }
 
 @keyframes float-hero {
@@ -225,54 +301,51 @@
         transform: translateY(-15px);
     }
 
-    /* Floats up 15px */
     100% {
         transform: translateY(0px);
     }
 }
 
-/* --- Quick Actions --- */
+/* --- 🚨 Quick Actions --- */
 .quick-actions-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 16px;
+    margin-bottom: 40px;
 }
 
 .action-card {
     background: #FFFFFF;
     border: 1px solid #E5E7EB;
     border-radius: 20px;
-    padding: 20px;
+    padding: 24px;
     cursor: pointer;
     position: relative;
     transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.01);
 }
 
 .action-card:hover {
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.03);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.04);
     border-color: #D1D5DB;
-    transform: translateY(-2px);
+    transform: translateY(-4px);
 }
 
+/* Unified Colors */
+/* Multi-Colored Action Icons */
 .action-icon {
-    width: 60px;
-    height: 60px;
-    border-radius: 12px;
+    width: 64px;
+    height: 64px;
+    border-radius: 14px;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-bottom: 16px;
+    margin-bottom: 20px;
 }
 
-/*.icon-ai {
+.icon-ai {
     background: #F3E8FF;
     color: #9333EA;
-}*/
-
-.robot-img {
-    width: 180px;
-    height: 200px;
-    object-fit: contain;
 }
 
 .icon-roadmap {
@@ -290,46 +363,57 @@
     color: #16A34A;
 }
 
+
+
+/* Bigger and adapted Text */
 .action-card h3 {
-    font-size: 15px;
+    font-size: 18px;
     font-weight: 700;
-    margin: 0 0 4px 0;
+    margin: 0 0 6px 0;
+    color: #1E293B;
 }
 
 .action-card p {
-    font-size: 12px;
-    color: #6B7280;
+    font-size: 14px;
+    color: #64748B;
     margin: 0;
+    line-height: 1.4;
 }
 
 .arrow-icon {
     position: absolute;
-    bottom: 20px;
-    right: 20px;
-    color: #D1D5DB;
+    bottom: 24px;
+    right: 24px;
+    color: #CBD5E1;
 }
 
-/* --- Progress Overview --- */
+/* --- 🚨 Progress Overview --- */
 .progress-overview-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 16px;
+    gap: 20px;
 }
 
 .progress-stat-card {
     background: #FFFFFF;
     border: 1px solid #E5E7EB;
-    border-radius: 16px;
-    padding: 16px;
+    border-radius: 20px;
+    padding: 24px;
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 16px;
+    transition: all 0.2s ease;
+}
+
+.progress-stat-card:hover {
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.03);
+    border-color: #CBD5E1;
 }
 
 .stat-icon-wrapper {
-    width: 40px;
-    height: 40px;
-    border-radius: 10px;
+    width: 56px;
+    height: 56px;
+    border-radius: 14px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -361,16 +445,17 @@
 }
 
 .stat-label {
-    font-size: 10px;
-    font-weight: 600;
-    color: #9CA3AF !important;
+    font-size: 11px;
+    font-weight: 700;
+    color: #94A3B8 !important;
     letter-spacing: 0.5px;
+    margin-bottom: 4px;
 }
 
 .stat-value {
-    font-size: 16px;
-    font-weight: 700;
-    color: #4B5563;
+    font-size: 22px;
+    font-weight: 800;
+    color: #334155;
 }
 
 .stat-value.highlight-orange {
@@ -391,7 +476,7 @@
     border: 1px solid #E5E7EB;
     border-radius: 24px;
     padding: 32px;
-    margin-top: 32px;
+    margin-top: 40px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
 }
 
@@ -416,19 +501,6 @@
     font-size: 24px;
     margin: 12px 0 0 0;
     color: #111827;
-}
-
-.streak-pill {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    background: #FFF7ED;
-    color: #EA580C;
-    padding: 8px 16px;
-    border-radius: 20px;
-    font-size: 13px;
-    font-weight: 600;
-    border: 1px solid #FFEDD5;
 }
 
 .progress-details {
@@ -547,246 +619,6 @@
     text-decoration: underline;
 }
 
-.instructors-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 16px;
-    margin-bottom: 32px;
-}
-
-.instructor-card {
-    background: #FFFFFF;
-    border: 1px solid #E5E7EB;
-    border-radius: 16px;
-    padding: 24px 16px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    transition: transform 0.2s, box-shadow 0.2s;
-}
-
-.instructor-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
-}
-
-.instructor-avatar {
-    width: 64px;
-    height: 64px;
-    background: #F3E8FF;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 12px;
-}
-
-.instructor-name {
-    font-size: 16px;
-    font-weight: 700;
-    color: #111827;
-    margin: 0 0 8px 0;
-}
-
-.instructor-badges {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 6px;
-    margin-bottom: 12px;
-}
-
-.badge-field {
-    background: #F3F4F6;
-    color: #4B5563;
-    font-size: 10px;
-    font-weight: 700;
-    padding: 4px 8px;
-    border-radius: 12px;
-}
-
-.instructor-exp {
-    font-size: 12px;
-    color: #6B7280;
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    margin: 0 0 16px 0;
-}
-
-.btn-request-instructor {
-    width: 100%;
-    padding: 10px;
-    background: #FFFFFF;
-    border: 1px solid #7C3AED;
-    color: #7C3AED;
-    border-radius: 8px;
-    font-weight: 600;
-    font-size: 13px;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.btn-request-instructor:hover:not(:disabled) {
-    background: #7C3AED;
-    color: #FFFFFF;
-}
-
-.btn-request-instructor:disabled {
-    border-color: #D1D5DB;
-    color: #9CA3AF;
-    cursor: not-allowed;
-    background: #F9FAFB;
-}
-
-/* --- Instructor Skills Capsules --- */
-.instructor-skills {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 6px;
-    margin-bottom: 16px;
-    /* Spacing before the experience text */
-}
-
-.badge-skill {
-    background: #FFFFFF;
-    border: 1px solid #E5E7EB;
-    color: #6B7280;
-    font-size: 10px;
-    font-weight: 500;
-    padding: 3px 8px;
-    border-radius: 12px;
-}
-
-.badge-skill-more {
-    background: #F9FAFB;
-    border: 1px dashed #D1D5DB;
-    color: #9CA3AF;
-    font-size: 10px;
-    font-weight: 600;
-    padding: 3px 6px;
-    border-radius: 12px;
-    cursor: pointer;
-    /* Makes it look clickable */
-    transition: all 0.2s;
-}
-
-.badge-skill-more:hover {
-    background: #F3F4F6;
-    border-color: #9CA3AF;
-    color: #4B5563;
-}
-
-.back-button-modern {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background: none;
-    border: none;
-    cursor: pointer;
-    color: #8B5CF6;
-    font-weight: 700;
-    margin-bottom: 32px;
-    padding: 0;
-}
-
-.mentors-header-section {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 40px;
-}
-
-.find-guide-badge {
-    color: #F97316;
-    font-size: 12px;
-    font-weight: 800;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    margin-bottom: 8px;
-    display: block;
-}
-
-.status-floating-card {
-    background: #FFFFFF;
-    padding: 16px 24px;
-    border-radius: 16px;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    border: 1px solid #F1F5F9;
-}
-
-.status-label {
-    font-size: 10px;
-    font-weight: 700;
-    color: #94A3B8;
-    letter-spacing: 1px;
-}
-
-.status-active {
-    color: #10B981;
-    font-weight: 800;
-    font-size: 16px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    margin: 4px 0;
-}
-
-.status-sub {
-    font-size: 11px;
-    color: #94A3B8;
-}
-
-/* Categories */
-.categories-scroll-wrapper {
-    display: flex;
-    gap: 12px;
-    overflow-x: auto;
-    padding-bottom: 16px;
-    margin-bottom: 24px;
-}
-
-.categories-scroll-wrapper::-webkit-scrollbar {
-    display: none;
-}
-
-.category-pill {
-    padding: 10px 20px;
-    background: #FFFFFF;
-    color: #64748B;
-    border: 1px solid #E2E8F0;
-    border-radius: 24px;
-    font-size: 13px;
-    font-weight: 700;
-    white-space: nowrap;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.category-pill:hover {
-    background: #F8FAFC;
-    color: #1E293B;
-}
-
-.category-pill.active {
-    background: #1E293B;
-    color: #FFFFFF;
-    border-color: #1E293B;
-}
-
-.section-divider {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 24px;
-    margin-top: 16px;
-}
-
 @media (max-width: 900px) {
 
     .quick-actions-grid,
@@ -805,5 +637,16 @@
 
     .hero-image-placeholder {
         display: none;
+    }
+
+    .sidebar {
+        width: 80px;
+        padding: 24px 12px;
+    }
+
+    .sidebar-nav button span,
+    .sidebar-logout span {
+        display: none;
+        /* Hide text on small screens, keep icons */
     }
 }

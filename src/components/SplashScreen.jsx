@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Star, Rocket, Sparkles, BookOpen } from 'lucide-react';
+import { Star, Rocket, Sparkles, BookOpen, Compass, Lightbulb, Zap, BrainCircuit } from 'lucide-react';
 import './SplashScreen.css';
 import logo from '../assets/logo.png';
 
@@ -31,7 +31,7 @@ const SplashScreen = ({ onComplete }) => {
     return (
         <div className="splash-screen-wrapper">
 
-            {/* Floating Background Icons (Inline SVGs so you don't need extra files) */}
+            {/* Existing Icons */}
             <Star
                 className="floating-icon icon-star"
                 size={28}
@@ -58,13 +58,40 @@ const SplashScreen = ({ onComplete }) => {
                 color="#10B981"
             />
 
+            {/* New Added Icons */}
+            <Compass
+                className="floating-icon icon-compass"
+                size={30}
+                color="#8B5CF6"
+            />
+
+
+            <Zap
+                className="floating-icon icon-zap"
+                size={28}
+                color="#3B82F6"
+                fill="#3B82F6"
+            />
+
+            <BrainCircuit
+                className="floating-icon icon-brain"
+                size={34}
+                color="#EC4899"
+            />
+
+            <Star className="floating-icon icon-star-2" size={20} color="#F43F5E" fill="#F43F5E" />
+            <Sparkles className="floating-icon icon-sparkle-2" size={24} color="#14B8A6" fill="#14B8A6" />
+            <BookOpen className="floating-icon icon-book-2" size={32} color="#8B5CF6" />
+            <Compass className="floating-icon icon-compass-2" size={22} color="#F97316" />
+            <Lightbulb className="floating-icon icon-lightbulb-2" size={20} color="#06B6D4" />
+            <Zap className="floating-icon icon-zap-2" size={18} color="#EAB308" fill="#EAB308" />
+
+
             {/* Main Content */}
             <main className="splash-main-content">
                 <div className="logo-container">
                     <img src={logo} alt="EduGuide Logo" className="splash-robot-img" />
                 </div>
-
-
 
                 <h2 className="splash-subtitle">Adventures in Learning</h2>
                 <p className="splash-tagline">Powered by AI magic</p>

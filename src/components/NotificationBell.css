@@ -4,60 +4,116 @@
     display: inline-block;
 }
 
-.notification-badge {
-    position: absolute;
-    top: -2px;
-    right: -2px;
-    background-color: #EF4444;
-    color: white;
-    font-size: 10px;
-    font-weight: 700;
-    width: 16px;
-    height: 16px;
+/* 🚨 Force the button to be completely transparent and modern */
+.notification-wrapper button {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 8px !important;
+    cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
     border-radius: 50%;
-    border: 2px solid white;
+    transition: all 0.2s ease;
 }
 
+/* 🚨 Make the bell icon light so it pops on the dark banner */
+.notification-wrapper button svg {
+    color: rgba(255, 255, 255, 0.9) !important;
+    width: 24px;
+    height: 24px;
+    transition: transform 0.2s ease, color 0.2s ease;
+}
+
+/* Add a glowing hover effect */
+.notification-wrapper button:hover svg {
+    color: #ffffff !important;
+    transform: scale(1.1) rotate(10deg);
+    filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.6));
+}
+
+/* 🚨 Modernized Glowing Badge */
+.notification-badge {
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    background: linear-gradient(135deg, #FF4B2B 0%, #FF416C 100%);
+    color: white;
+    font-size: 10px;
+    font-weight: 800;
+    min-width: 18px;
+    /* Changed to min-width for pill shape */
+    height: 18px;
+    padding: 0 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 20px;
+    /* Pill shape */
+    box-shadow: 0 2px 8px rgba(255, 65, 108, 0.4);
+    /* Match the border to the banner color so it blends */
+    border: 2px solid #5B3DF5;
+    animation: pulse-badge 2s infinite;
+    pointer-events: none;
+}
+
+@keyframes pulse-badge {
+    0% {
+        box-shadow: 0 0 0 0 rgba(255, 65, 108, 0.5);
+    }
+
+    70% {
+        box-shadow: 0 0 0 6px rgba(255, 65, 108, 0);
+    }
+
+    100% {
+        box-shadow: 0 0 0 0 rgba(255, 65, 108, 0);
+    }
+}
+
+/* 🚨 Modernized Glassmorphic Dropdown Menu */
 .notification-dropdown {
     position: absolute;
-    top: 120%;
-    right: 0;
-    width: 320px;
-    background: white;
-    border: 1px solid #E5E7EB;
-    border-radius: 16px;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+    top: 140%;
+    right: -10px;
+    width: 340px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(16px);
+    /* Glass effect */
+    border: 1px solid rgba(229, 231, 235, 0.5);
+    border-radius: 20px;
+    /* Softer, modern corners */
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.02);
     z-index: 1000;
     overflow: hidden;
-    animation: dropFadeIn 0.2s ease;
+    animation: dropFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    transform-origin: top right;
 }
 
 @keyframes dropFadeIn {
     from {
         opacity: 0;
-        transform: translateY(-10px);
+        transform: translateY(-10px) scale(0.95);
     }
 
     to {
         opacity: 1;
-        transform: translateY(0);
+        transform: translateY(0) scale(1);
     }
 }
 
 .dropdown-header {
-    padding: 16px 20px;
-    border-bottom: 1px solid #F3F4F6;
-    background: #F8FAFC;
+    padding: 18px 20px;
+    border-bottom: 1px solid rgba(243, 244, 246, 0.8);
+    background: transparent;
 }
 
 .dropdown-header h3 {
     margin: 0;
-    font-size: 14px;
+    font-size: 15px;
     font-weight: 700;
-    color: #111827;
+    color: #1E293B;
 }
 
 .dropdown-body {
@@ -66,29 +122,30 @@
 }
 
 .dropdown-body::-webkit-scrollbar {
-    width: 6px;
+    width: 4px;
 }
 
 .dropdown-body::-webkit-scrollbar-thumb {
-    background: #CBD5E1;
+    background: #E2E8F0;
     border-radius: 10px;
 }
 
 .empty-notifs {
-    padding: 30px;
+    padding: 40px 30px;
     text-align: center;
-    color: #9CA3AF;
+    color: #94A3B8;
     font-size: 13px;
+    font-weight: 500;
 }
 
 .notif-item {
     display: flex;
     align-items: flex-start;
-    gap: 12px;
+    gap: 14px;
     padding: 16px 20px;
-    border-bottom: 1px solid #F3F4F6;
+    border-bottom: 1px solid rgba(243, 244, 246, 0.6);
     cursor: pointer;
-    transition: background 0.2s;
+    transition: all 0.2s ease;
 }
 
 .notif-item:hover {
@@ -96,23 +153,23 @@
 }
 
 .notif-item.unread {
-    background: #F0FDF4;
-    /* Very light green tint for unread */
+    background: #F4F8FF;
+    /* Modern light blue/purple tint instead of green */
 }
 
 .notif-item.unread:hover {
-    background: #DCFCE7;
+    background: #EEF2FF;
 }
 
 .notif-icon-wrap {
-    width: 36px;
-    height: 36px;
-    border-radius: 10px;
+    width: 38px;
+    height: 38px;
+    border-radius: 12px;
     background: white;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04);
     flex-shrink: 0;
 }
 
@@ -142,7 +199,7 @@
 }
 
 .text-gray {
-    color: #6B7280;
+    color: #64748B;
 }
 
 .notif-content {
@@ -153,26 +210,27 @@
     margin: 0 0 4px 0;
     font-size: 13px;
     font-weight: 700;
-    color: #111827;
+    color: #1E293B;
 }
 
 .notif-content p {
     margin: 0 0 6px 0;
     font-size: 12px;
-    color: #4B5563;
-    line-height: 1.4;
+    color: #64748B;
+    line-height: 1.5;
 }
 
 .notif-time {
-    font-size: 10px;
-    color: #9CA3AF;
-    font-weight: 500;
+    font-size: 11px;
+    color: #94A3B8;
+    font-weight: 600;
 }
 
 .unread-dot {
     width: 8px;
     height: 8px;
-    background: #10B981;
+    background: #3B82F6;
     border-radius: 50%;
-    margin-top: 4px;
+    margin-top: 6px;
+    box-shadow: 0 0 6px rgba(59, 130, 246, 0.4);
 }

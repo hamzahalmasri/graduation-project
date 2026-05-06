@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Bell, UserCircle, MessageSquare, Map, BrainCircuit, Target, Award, Flame, Play, BotMessageSquare, LogOut, ChevronRight, BookOpen, Star, Code, CheckCircle2 } from 'lucide-react';
+import { Bell, UserCircle, MessageSquare, Map, BrainCircuit, Target, Award, Flame, Play, BotMessageSquare, LogOut, ChevronRight, BookOpen, Star, Code, CheckCircle2, Trash2 } from 'lucide-react';
 import NotificationBell from './NotificationBell';
 import { getUserRoadmaps, getStudentProgress } from '../api/roadmapService';
-import { getStudentAssignment } from '../api/assignmentService';
+import { getStudentAssignment, dropInstructor } from '../api/assignmentService';
 import { getTopInstructors, requestInstructor } from '../api/instructorService';
 import green from '../assets/green.svg';
-import robotPhone from '../assets/phone-robot.svg';
-import logo from '../assets/logo.png';
+import logo from '../assets/light-logo.png';
 import './InstructorsList.css';
 import './StudentHomePage.css';
+
 
 const cardColors = ['#0ea5e9', '#ea580c', '#22c55e', '#eab308', '#8b5cf6', '#3b82f6'];
 
@@ -45,7 +45,6 @@ const StudentHomePage = () => {
         if (!studentId) return;
 
         try {
-            // 1. Fetch User's Roadmaps
             const roadmaps = await getUserRoadmaps(studentId);
             let currentPath = "No active roadmap";
             let totalSteps = 0;
@@ -70,7 +69,6 @@ const StudentHomePage = () => {
                     console.error("Failed to parse roadmap content", e);
                 }
 
-                // 2. Fetch Dynamic Progress
                 const progressData = await getStudentProgress(studentId, latestRoadmap.id);
                 const completedRecords = progressData.filter(p => p.status === 'COMPLETED' || p.status?.toUpperCase() === 'COMPLETED');
                 const uniqueCompletedSteps = new Set(completedRecords.map(p => `${p.phaseTitle}|${p.stepTitle}`));
@@ -79,11 +77,11 @@ const StudentHomePage = () => {
                 progressPercentage = totalSteps === 0 ? 0 : Math.min(100, Math.round((currentStep / totalSteps) * 100));
             }
 
-            // 3. Fetch Instructor Status & Top Instructors
+            // Fetch Instructor Status
             let activeAssignment = null;
             try {
                 const assignments = await getStudentAssignment(studentId);
-                activeAssignment = assignments && assignments.length > 0 ? assignments[0] : null;
+                activeAssignment = assignments && assignments.length > 0 ? assignments.find(a => a.status === 'PENDING' || a.status === 'APPROVED') : null;
 
                 const instructors = await getTopInstructors();
                 setTopInstructors(instructors);
@@ -99,9 +97,7 @@ const StudentHomePage = () => {
                 currentStep,
                 totalSteps,
                 roadmapId: latestRoadmap ? latestRoadmap.id : null,
-                instructorStatus: activeAssignment ? activeAssignment.status : null,
-                requestedInstructorId: activeAssignment?.instructor?.id || null, // Tracking WHO was requested
-                instructorNote: activeAssignment ? activeAssignment.note : null,
+                activeAssignment: activeAssignment,
                 quizzesCompleted: 12,
                 bestScore: 98,
                 streakDays: 5
@@ -117,28 +113,29 @@ const StudentHomePage = () => {
     }, []);
 
     const handleInstructorRequest = async (instructorId) => {
-        if (userData.instructorStatus === 'PENDING' || userData.instructorStatus === 'APPROVED') {
-            alert("You already have an active or pending instructor request.");
-            return;
-        }
+        if (userData.activeAssignment) return;
 
         try {
             setIsRequesting(true);
             await requestInstructor(userData.studentId, instructorId);
             alert("Request sent successfully! Waiting for admin approval.");
-
-            // Optimistic UI Update: Instantly turn this specific button green
-            setUserData(prev => ({
-                ...prev,
-                instructorStatus: 'PENDING',
-                requestedInstructorId: instructorId
-            }));
-
-            fetchDashboardData(); // Refresh data quietly in the background
+            fetchDashboardData();
         } catch (e) {
             alert("Failed to send request. Please try again.", e);
         } finally {
             setIsRequesting(false);
+        }
+    };
+
+    const handleDrop = async (assignmentId) => {
+        if (window.confirm("Are you sure you want to drop this instructor?")) {
+            try {
+                await dropInstructor(assignmentId);
+                setUserData(prev => ({ ...prev, activeAssignment: null }));
+                alert("Instructor dropped successfully.");
+            } catch (error) {
+                alert("Failed to drop instructor. " + error.message);
+            }
         }
     };
 
@@ -147,45 +144,48 @@ const StudentHomePage = () => {
     }
 
     const remainingSteps = Math.max(0, userData.totalSteps - userData.currentStep);
+    const hasInstructor = userData.activeAssignment !== null && userData.activeAssignment !== undefined;
 
     let instructorTitle = "Find an Instructor";
     let instructorSub = "Choose your mentor";
-    if (userData.instructorStatus === 'PENDING') {
+    if (userData.activeAssignment?.status === 'PENDING') {
         instructorTitle = "Instructor Status";
         instructorSub = "Waiting for approval ⏳";
-    } else if (userData.instructorStatus === 'APPROVED') {
+    } else if (userData.activeAssignment?.status === 'APPROVED') {
         instructorTitle = "Instructor Chat";
         instructorSub = "Chat with your mentor ✅";
-    } else if (userData.instructorStatus === 'REJECTED') {
-        instructorTitle = "Request Rejected";
-        instructorSub = "Check notes and re-apply ❌";
     }
 
     return (
         <div className="student-home-container">
-            <nav className="top-navbar">
-                <div className="nav-left">
-                    <div className="brand-logo">
-                        <img src={logo} alt="Brand Logo" className="logo-image" />
-                    </div>
-                    <div className="nav-links">
-                        <button onClick={() => navigate('/chat')}><BotMessageSquare size={16} /> AI Chat</button>
-                        <button onClick={() => navigate('/roadmaps')}><Map size={16} /> Roadmap</button>
-                        <button onClick={() => navigate('/quizzes')}><BrainCircuit size={16} /> Quizzes</button>
-                        <button onClick={() => navigate('/instructor-chat')}><MessageSquare size={16} /> Instructor</button>
-                    </div>
+
+            {/* 🚨 NEW SIDEBAR */}
+            <aside className="sidebar">
+                <div className="sidebar-logo">
+                    <img src={logo} alt="Brand Logo" className="logo-image" />
                 </div>
-                <div className="nav-right">
-                    <NotificationBell />
-                    <button className="icon-btn"><UserCircle size={20} /></button>
-                    <button className="icon-btn logout" onClick={handleLogout}>
-                        <LogOut size={20} />
-                    </button>
+
+                <div className="sidebar-nav">
+                    <button onClick={() => navigate('/chat')}><BotMessageSquare size={18} /> AI Chat</button>
+                    <button onClick={() => navigate('/roadmaps')}><Map size={18} /> Roadmap</button>
+                    <button onClick={() => navigate('/quizzes')}><BrainCircuit size={18} /> Quizzes</button>
+                    <button onClick={() => navigate('/instructor-chat')}><MessageSquare size={18} /> Instructor</button>
                 </div>
-            </nav>
+
+                {/* Logout positioned at bottom */}
+                <button className="sidebar-logout" onClick={handleLogout}>
+                    <LogOut size={18} /> Logout
+                </button>
+            </aside>
 
             <main className="main-content">
-                {/* Hero Section */}
+
+                {/* 🚨 FLOATING NOTIFICATION */}
+                <div className="floating-notification">
+                    <NotificationBell />
+                </div>
+
+                {/* 🚨 HERO BANNER: Full width, no rounded corners, flush to top */}
                 <section className="hero-banner">
                     <div className="hero-content">
                         <span className="hero-badge">✨ YOUR DASHBOARD</span>
@@ -210,174 +210,217 @@ const StudentHomePage = () => {
                     </div>
                 </section>
 
-                {/* Quick Actions */}
-                <h2 className="section-title">Quick Actions</h2>
-                <section className="quick-actions-grid">
-                    <div className="action-card" onClick={() => navigate('/chat')}>
-                        <div className="action-icon icon-ai"><img src={robotPhone} alt="AI Tutor" className='robot-img' /></div>
-                        <h3>Chat With AI</h3>
-                        <p>Get instant help & tutoring</p>
-                        <ChevronRight className="arrow-icon" size={16} />
-                    </div>
-                    <div className="action-card" onClick={() => navigate('/roadmaps')}>
-                        <div className="action-icon icon-roadmap"><Map size={24} /></div>
-                        <h3>My Roadmap</h3>
-                        <p>View curriculum & milestones</p>
-                        <ChevronRight className="arrow-icon" size={16} />
-                    </div>
-                    <div className="action-card" onClick={() => navigate('/quizzes')}>
-                        <div className="action-icon icon-quiz"><BrainCircuit size={24} /></div>
-                        <h3>Take Quizzes</h3>
-                        <p>Test knowledge & earn badges</p>
-                        <ChevronRight className="arrow-icon" size={16} />
-                    </div>
-                    <div className="action-card" onClick={() => userData.instructorStatus === 'APPROVED' ? navigate('/instructor-chat') : alert(`Status: ${userData.instructorStatus || 'None'}`)}>
-                        <div className="action-icon icon-instructor"><MessageSquare size={24} /></div>
-                        <h3>{instructorTitle}</h3>
-                        <p style={{ color: userData.instructorStatus === 'REJECTED' ? '#ef4444' : '#6B7280' }}>{instructorSub}</p>
-                        <ChevronRight className="arrow-icon" size={16} />
-                    </div>
-                </section>
+                {/* Wrapper for the rest of the page to give it padding inside the main content */}
+                <div className="page-inner-content">
 
-                {/* NEW: Top Instructors Section with Modern Design */}
-                <div className="section-header-row">
-                    <h2 className="section-title">Top Instructors</h2>
-                    <button className="btn-text-purple" onClick={() => navigate('/instructors')}>View All Instructors →</button>
-                </div>
-                <section className="modern-instructors-grid" style={{ marginBottom: '32px' }}>
-                    {topInstructors.length > 0 ? topInstructors.slice(0, 3).map((instructor, index) => {
-                        const color = cardColors[index % cardColors.length];
-                        const isThisInstructorRequested = userData.requestedInstructorId === instructor.id;
-                        const isAnyRequestActive = userData.instructorStatus === 'PENDING' || userData.instructorStatus === 'APPROVED';
+                    {/* Quick Actions */}
+                    <h2 className="section-title">Quick Actions</h2>
+                    <section className="quick-actions-grid">
+                        <div className="action-card" onClick={() => navigate('/chat')}>
+                            <div className="action-icon icon-ai"><BotMessageSquare size={30} /></div>
+                            <h3>Chat With AI</h3>
+                            <p>Get instant help & tutoring</p>
+                            <ChevronRight className="arrow-icon" size={16} />
+                        </div>
+                        <div className="action-card" onClick={() => navigate('/roadmaps')}>
+                            <div className="action-icon icon-roadmap"><Map size={24} /></div>
+                            <h3>My Roadmap</h3>
+                            <p>View curriculum & milestones</p>
+                            <ChevronRight className="arrow-icon" size={16} />
+                        </div>
+                        <div className="action-card" onClick={() => navigate('/quizzes')}>
+                            <div className="action-icon icon-quiz"><BrainCircuit size={24} /></div>
+                            <h3>Take Quizzes</h3>
+                            <p>Test knowledge & earn badges</p>
+                            <ChevronRight className="arrow-icon" size={16} />
+                        </div>
+                        <div className="action-card" onClick={() => userData.activeAssignment?.status === 'APPROVED' ? navigate('/instructor-chat') : alert(`Status: ${userData.activeAssignment?.status || 'None'}`)}>
+                            <div className="action-icon icon-instructor"><MessageSquare size={24} /></div>
+                            <h3>{instructorTitle}</h3>
+                            <p style={{ color: '#6B7280' }}>{instructorSub}</p>
+                            <ChevronRight className="arrow-icon" size={16} />
+                        </div>
+                    </section>
 
-                        return (
-                            <div key={instructor.id} className="modern-instructor-card">
-                                <div className="card-top-border" style={{ backgroundColor: color }}></div>
+                    <div className="section-header-row" style={{ marginTop: '40px' }}>
+                        <h2 className="section-title">
+                            {hasInstructor ? 'Other Top Instructors' : 'Top Instructors'}
+                        </h2>
+                        <button className="btn-text-purple" onClick={() => navigate('/instructors')}>View All Mentors →</button>
+                    </div>
 
-                                <div className="card-header-row">
-                                    <div className="modern-avatar" style={{ backgroundColor: color }}>
-                                        {getInitials(instructor.fullName)}
+                    {userData.activeAssignment?.status === 'APPROVED' && (
+                        <div style={{
+                            background: 'linear-gradient(135deg, #F3E8FF 0%, #FFFFFF 100%)',
+                            border: '1px solid #D8B4FE',
+                            borderRadius: '20px',
+                            padding: '24px',
+                            marginBottom: '24px',
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            boxShadow: '0 4px 15px rgba(139, 92, 246, 0.1)'
+                        }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+                                <div className="modern-avatar" style={{ backgroundColor: '#8B5CF6', width: '64px', height: '64px', fontSize: '24px' }}>
+                                    {getInitials(userData.activeAssignment.instructor?.fullName)}
+                                </div>
+                                <div>
+                                    <span style={{ fontSize: '12px', fontWeight: '800', color: '#8B5CF6', letterSpacing: '1px', textTransform: 'uppercase' }}>YOUR INSTRUCTOR</span>
+                                    <h2 style={{ margin: '4px 0', fontSize: '24px', color: '#1E293B' }}>{userData.activeAssignment.instructor?.fullName}</h2>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '14px', color: '#10B981', fontWeight: '600' }}>
+                                        <CheckCircle2 size={16} /> Approved & Active
                                     </div>
                                 </div>
-
-                                <h3 className="modern-instructor-name">{instructor.fullName}</h3>
-
-                                <div className="expertise-line">
-                                    <Code size={14} style={{ flexShrink: 0 }} />
-                                    <span style={{ display: 'inline-block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                                        {instructor.expertiseFields?.map(f => f.replace('_', ' ')).join(', ')}
-                                    </span>
-                                </div>
-
-                                <p className="modern-bio" style={{ fontStyle: instructor.bio ? 'normal' : 'italic', color: instructor.bio ? '#475569' : '#94A3B8' }}>
-                                    "{instructor.bio || "This instructor hasn't added a bio yet."}"
-                                </p>
-
-                                <div className="instructor-skills" style={{ justifyContent: 'flex-start', marginTop: 'auto', marginBottom: '16px' }}>
-                                    {instructor.skills?.slice(0, expandedSkills[instructor.id] ? instructor.skills.length : 3).map((skill, idx) => (
-                                        <span key={idx} className="badge-skill-modern">{skill}</span>
-                                    ))}
-
-                                    {instructor.skills?.length > 3 && (
-                                        <span
-                                            className="badge-skill-more-modern"
-                                            onClick={(e) => toggleSkills(e, instructor.id)}
-                                        >
-                                            {expandedSkills[instructor.id] ? 'Less' : `+${instructor.skills.length - 3}`}
-                                        </span>
-                                    )}
-                                </div>
-
-                                <div className="instructor-exp-modern">
-                                    <Award size={14} /> {instructor.yearsOfExperience || 0} Years Experience
-                                </div>
-
-                                <button
-                                    className={`btn-request-modern ${isThisInstructorRequested ? 'requested' : ''}`}
-                                    disabled={isRequesting || isAnyRequestActive}
-                                    onClick={() => handleInstructorRequest(instructor.id)}
-                                >
-                                    {isThisInstructorRequested ? <><CheckCircle2 size={16} /> Requested</> : 'Request Mentor'}
+                            </div>
+                            <div style={{ display: 'flex', gap: '12px' }}>
+                                <button onClick={() => navigate('/instructor-chat')} style={{ padding: '12px 24px', borderRadius: '12px', background: '#8B5CF6', color: 'white', border: 'none', fontWeight: '600', cursor: 'pointer', display: 'flex', gap: '8px', alignItems: 'center' }}>
+                                    <MessageSquare size={18} /> Chat
+                                </button>
+                                <button onClick={() => handleDrop(userData.activeAssignment.id)} style={{ padding: '12px 24px', borderRadius: '12px', background: '#FEE2E2', color: '#EF4444', border: 'none', fontWeight: '700', cursor: 'pointer', display: 'flex', gap: '8px', alignItems: 'center' }}>
+                                    <Trash2 size={18} /> Drop Instructor
                                 </button>
                             </div>
-                        );
-                    }) : (
-                        <p className="no-data-text">No instructors available right now.</p>
+                        </div>
                     )}
-                </section>
 
-                {/* Your Progress */}
-                <h2 className="section-title">Your Progress</h2>
-                <section className="progress-overview-grid">
-                    <div className="progress-stat-card">
-                        <div className="stat-icon-wrapper purple"><Target size={20} /></div>
-                        <div className="stat-info">
-                            <span className="stat-label">CURRENT PATH</span>
-                            <span className="stat-value" style={{ fontSize: '14px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '140px' }}>
-                                {userData.currentPath}
-                            </span>
-                        </div>
-                    </div>
-                    <div className="progress-stat-card">
-                        <div className="stat-icon-wrapper orange"><BrainCircuit size={20} /></div>
-                        <div className="stat-info">
-                            <span className="stat-label">QUIZZES DONE</span>
-                            <span className="stat-value highlight-orange">{userData.quizzesCompleted}</span>
-                        </div>
-                    </div>
-                    <div className="progress-stat-card">
-                        <div className="stat-icon-wrapper green"><Award size={20} /></div>
-                        <div className="stat-info">
-                            <span className="stat-label">BEST SCORE</span>
-                            <span className="stat-value highlight-green">{userData.bestScore}%</span>
-                        </div>
-                    </div>
-                    <div className="progress-stat-card">
-                        <div className="stat-icon-wrapper blue"><BookOpen size={20} /></div>
-                        <div className="stat-info">
-                            <span className="stat-label">CURRENT STEP</span>
-                            <span className="stat-value highlight-blue">{userData.currentStep}/{userData.totalSteps}</span>
-                        </div>
-                    </div>
-                </section>
+                    <section className="modern-instructors-grid" style={{ marginBottom: '32px', gridTemplateColumns: 'repeat(3, 1fr)' }}>
+                        {topInstructors.length > 0 ? topInstructors.slice(0, 3).map((instructor, index) => {
+                            const color = cardColors[index % cardColors.length];
+                            const isThisInstructorRequested = userData.activeAssignment?.instructor?.id === instructor.id;
+                            const isFaded = hasInstructor && !isThisInstructorRequested;
 
-                {/* In Progress Card */}
-                {userData.totalSteps > 0 && (
-                    <section className="in-progress-card">
-                        <div className="in-progress-header">
-                            <div className="header-left">
-                                <span className="badge-in-progress">In Progress</span>
-                                <h2 className="path-title">{userData.currentPath}</h2>
-                            </div>
-                        </div>
+                            return (
+                                <div key={instructor.id} className="modern-instructor-card" style={{ opacity: isFaded ? 0.6 : 1, transition: 'opacity 0.3s' }}>
+                                    <div className="card-top-border" style={{ backgroundColor: color }}></div>
 
-                        <div className="progress-details">
-                            <span className="step-count">Step {userData.currentStep} of {userData.totalSteps}</span>
-                            <div className="right-stats">
-                                <span className="steps-left">{remainingSteps} steps left</span>
-                                <span className="percentage">{userData.progressPercentage}%</span>
-                            </div>
-                        </div>
+                                    <div className="card-header-row">
+                                        <div className="modern-avatar" style={{ backgroundColor: color }}>
+                                            {getInitials(instructor.fullName)}
+                                        </div>
+                                    </div>
 
-                        <div className="linear-progress-track">
-                            <div className="linear-progress-fill" style={{ width: `${userData.progressPercentage}%` }}></div>
-                        </div>
+                                    <h3 className="modern-instructor-name">{instructor.fullName}</h3>
 
-                        <div className="in-progress-footer">
-                            <div className="circular-progress-section">
-                                <div className="circular-progress" style={{ background: `conic-gradient(#7C3AED ${userData.progressPercentage}%, #F3F4F6 0)` }}>
-                                    <div className="inner-circle">{userData.progressPercentage}%</div>
-                                </div>
-                                <div className="encouragement-text">
-                                    {userData.progressPercentage >= 100 ? "Amazing, you finished this path!" : "Keep going, you are doing great!"}
-                                    <button className="btn-purple" onClick={() => navigate(`/roadmap/${userData.roadmapId}`)}>
-                                        Continue Learning <Play size={14} fill="currentColor" />
+                                    <div className="expertise-line">
+                                        <Code size={14} style={{ flexShrink: 0 }} />
+                                        <span style={{ display: 'inline-block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                            {instructor.expertiseFields?.map(f => f.replace('_', ' ')).join(', ')}
+                                        </span>
+                                    </div>
+
+                                    <p className="modern-bio" style={{ fontStyle: instructor.bio ? 'normal' : 'italic', color: instructor.bio ? '#475569' : '#94A3B8' }}>
+                                        "{instructor.bio || "This instructor hasn't added a bio yet."}"
+                                    </p>
+
+                                    <div className="instructor-skills" style={{ justifyContent: 'flex-start', marginTop: 'auto', marginBottom: '16px' }}>
+                                        {instructor.skills?.slice(0, expandedSkills[instructor.id] ? instructor.skills.length : 3).map((skill, idx) => (
+                                            <span key={idx} className="badge-skill-modern">{skill}</span>
+                                        ))}
+
+                                        {instructor.skills?.length > 3 && (
+                                            <span
+                                                className="badge-skill-more-modern"
+                                                onClick={(e) => toggleSkills(e, instructor.id)}
+                                            >
+                                                {expandedSkills[instructor.id] ? 'Less' : `+${instructor.skills.length - 3}`}
+                                            </span>
+                                        )}
+                                    </div>
+
+                                    <div className="instructor-exp-modern">
+                                        <Award size={14} /> {instructor.yearsOfExperience || 0} Years Experience
+                                    </div>
+
+                                    <button
+                                        className={`btn-request-modern ${isThisInstructorRequested ? 'requested' : ''}`}
+                                        disabled={isRequesting || hasInstructor}
+                                        onClick={() => handleInstructorRequest(instructor.id)}
+                                    >
+                                        {hasInstructor
+                                            ? (isThisInstructorRequested ? <><CheckCircle2 size={16} /> {userData.activeAssignment.status === 'APPROVED' ? 'Assigned' : 'Requested'}</> : 'You already have a mentor')
+                                            : 'Request Mentor'}
                                     </button>
                                 </div>
+                            );
+                        }) : (
+                            <p className="no-data-text">No instructors available right now.</p>
+                        )}
+                    </section>
+
+                    {/* Your Progress */}
+                    <h2 className="section-title">Your Progress</h2>
+                    <section className="progress-overview-grid">
+                        <div className="progress-stat-card">
+                            <div className="stat-icon-wrapper purple"><Target size={24} /></div>
+                            <div className="stat-info">
+                                <span className="stat-label">CURRENT PATH</span>
+                                <span className="stat-value" style={{ fontSize: '15px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '140px' }}>
+                                    {userData.currentPath}
+                                </span>
+                            </div>
+                        </div>
+                        <div className="progress-stat-card">
+                            <div className="stat-icon-wrapper orange"><BrainCircuit size={24} /></div>
+                            <div className="stat-info">
+                                <span className="stat-label">QUIZZES DONE</span>
+                                <span className="stat-value highlight-orange">{userData.quizzesCompleted}</span>
+                            </div>
+                        </div>
+                        <div className="progress-stat-card">
+                            <div className="stat-icon-wrapper green"><Award size={24} /></div>
+                            <div className="stat-info">
+                                <span className="stat-label">BEST SCORE</span>
+                                <span className="stat-value highlight-green">{userData.bestScore}%</span>
+                            </div>
+                        </div>
+                        <div className="progress-stat-card">
+                            <div className="stat-icon-wrapper blue"><BookOpen size={24} /></div>
+                            <div className="stat-info">
+                                <span className="stat-label">CURRENT STEP</span>
+                                <span className="stat-value highlight-blue">{userData.currentStep}/{userData.totalSteps}</span>
                             </div>
                         </div>
                     </section>
-                )}
+
+                    {/* In Progress Card */}
+                    {userData.totalSteps > 0 && (
+                        <section className="in-progress-card">
+                            <div className="in-progress-header">
+                                <div className="header-left">
+                                    <span className="badge-in-progress">In Progress</span>
+                                    <h2 className="path-title">{userData.currentPath}</h2>
+                                </div>
+                            </div>
+
+                            <div className="progress-details">
+                                <span className="step-count">Step {userData.currentStep} of {userData.totalSteps}</span>
+                                <div className="right-stats">
+                                    <span className="steps-left">{remainingSteps} steps left</span>
+                                    <span className="percentage">{userData.progressPercentage}%</span>
+                                </div>
+                            </div>
+
+                            <div className="linear-progress-track">
+                                <div className="linear-progress-fill" style={{ width: `${userData.progressPercentage}%` }}></div>
+                            </div>
+
+                            <div className="in-progress-footer">
+                                <div className="circular-progress-section">
+                                    <div className="circular-progress" style={{ background: `conic-gradient(#7C3AED ${userData.progressPercentage}%, #F3F4F6 0)` }}>
+                                        <div className="inner-circle">{userData.progressPercentage}%</div>
+                                    </div>
+                                    <div className="encouragement-text">
+                                        {userData.progressPercentage >= 100 ? "Amazing, you finished this path!" : "Keep going, you are doing great!"}
+                                        <button className="btn-purple" onClick={() => navigate(`/roadmap/${userData.roadmapId}`)}>
+                                            Continue Learning <Play size={14} fill="currentColor" />
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+                    )}
+                </div>
             </main>
         </div>
     );

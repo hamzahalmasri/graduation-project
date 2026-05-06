@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Mail, Lock, User, ShieldCheck, Users, BookOpen, Zap, Heart, Award, Briefcase, AlignLeft, Info, Sparkles, Map, Code, Cpu, ChevronDown, Check } from 'lucide-react';
+import { Mail, Lock, User, ShieldCheck, Users, BookOpen, Zap, Heart, Award, Briefcase, AlignLeft, Info, Sparkles, Map, Code, Cpu, ChevronDown, Check, Rocket, Star, Compass, BrainCircuit } from 'lucide-react';
 import { registerUser, loginUser } from '../api/authService';
 import { useNavigate } from 'react-router-dom';
 import { useForm, useWatch } from 'react-hook-form';
@@ -125,7 +125,7 @@ const AuthForm = () => {
                 expertiseField: data.expertiseField,
                 yearsOfExperience: Number(data.yearsOfExperience),
                 bio: data.bio,
-                skills: instructorSkills.join(', ') 
+                skills: instructorSkills.join(', ')
             })
         };
 
@@ -152,10 +152,16 @@ const AuthForm = () => {
                 <div className="bg-glow glow-blue"></div>
                 <div className="bg-glow glow-orange"></div>
 
+                {/* Original 4 Icons */}
                 <div className="floating-icon icon-1"><Sparkles size={20} color="#F59E0B" /></div>
                 <div className="floating-icon icon-2"><Map size={20} color="#10B981" /></div>
                 <div className="floating-icon icon-3"><Code size={20} color="#8B5CF6" /></div>
                 <div className="floating-icon icon-4"><Cpu size={20} color="#EC4899" /></div>
+
+                {/* 4 New Additional Icons */}
+                <div className="floating-icon icon-5"><Rocket size={20} color="#06B6D4" /></div>
+                <div className="floating-icon icon-6"><Star size={20} color="#FBBF24" /></div>
+                <div className="floating-icon icon-8"><BrainCircuit size={20} color="#3B82F6" /></div>
 
                 <div className="auth-left-content">
                     <div className="brand-logo">
@@ -176,7 +182,8 @@ const AuthForm = () => {
                 <div className="form-container">
                     {!isSignUp ? (
                         <form className="auth-form" onSubmit={handleSubmitLogin(onLoginSubmit)} noValidate>
-                            <h2 className="title">Welcome back :)</h2>
+                            {/* Updated Welcome back text */}
+                            <h2 className="title"><span className="welcome-title">Welcome back</span>👋</h2>
                             <p className="subtitle">Sign in to continue your learning journey</p>
 
                             <div className="input-group">
@@ -209,7 +216,7 @@ const AuthForm = () => {
                         </form>
                     ) : (
                         <form className="auth-form" onSubmit={handleSubmitSignUpForm(onSignUpSubmit)} noValidate>
-                            <h2 className="title">Create your account</h2>
+                            <h2 className="title welcome-title">Create your account</h2>
                             <p className="subtitle">Start your personalized learning journey today</p>
 
                             <div className="input-group">

@@ -245,3 +245,15 @@
     color: #FFFFFF;
     border-color: #10B981;
 }
+
+/* --- Independent Wrapper for Instructors List --- */
+.instructors-page-wrapper {
+    display: block !important;
+    min-height: 100vh;
+    padding: 40px;
+    background: radial-gradient(circle at 15% 15%, #E0F2FE 0%, transparent 40%),
+        radial-gradient(circle at 85% 85%, #E9D5FF 0%, transparent 50%),
+        #F8FAFC;
+    font-family: 'Inter', sans-serif;
+    color: #1E293B;
+}

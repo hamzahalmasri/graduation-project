@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, CheckCircle2, Code, Users, Award } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, Code, Users, Award, MessageSquare, Trash2 } from 'lucide-react';
 import { getAllInstructors, requestInstructor } from '../api/instructorService';
-import { getStudentAssignment } from '../api/assignmentService';
+import { getStudentAssignment, dropInstructor } from '../api/assignmentService';
 import './StudentHomePage.css';
 import './InstructorsList.css';
 
@@ -13,39 +13,36 @@ const InstructorsList = () => {
     const [instructors, setInstructors] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
 
-    // FIX 2: Replaced the simple boolean with an object that tracks the actual assignment
     const [activeAssignment, setActiveAssignment] = useState(null);
-
     const [expandedSkills, setExpandedSkills] = useState({});
     const [activeCategory, setActiveCategory] = useState('All');
 
     useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const studentId = localStorage.getItem('studentId');
-                const [instData, assignmentData] = await Promise.all([
-                    getAllInstructors(),
-                    getStudentAssignment(studentId)
-                ]);
-
-                setInstructors(instData);
-
-                // FIX 2: Store the entire active assignment so we know WHO was requested
-                if (assignmentData && assignmentData.length > 0) {
-                    const activeAssig = assignmentData.find(a => a.status === 'PENDING' || a.status === 'APPROVED');
-                    if (activeAssig) {
-                        setActiveAssignment(activeAssig);
-                    }
-                }
-            } catch (err) {
-                console.error("Error loading instructors", err);
-            } finally {
-                setIsLoading(false);
-            }
-        };
-
         fetchData();
     }, []);
+
+    const fetchData = async () => {
+        try {
+            const studentId = localStorage.getItem('studentId');
+            const [instData, assignmentData] = await Promise.all([
+                getAllInstructors(),
+                getStudentAssignment(studentId)
+            ]);
+
+            setInstructors(instData);
+
+            if (assignmentData && assignmentData.length > 0) {
+                const activeAssig = assignmentData.find(a => a.status === 'PENDING' || a.status === 'APPROVED');
+                setActiveAssignment(activeAssig || null);
+            } else {
+                setActiveAssignment(null);
+            }
+        } catch (err) {
+            console.error("Error loading instructors", err);
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     const toggleSkills = (e, instructorId) => {
         e.stopPropagation();
@@ -56,23 +53,28 @@ const InstructorsList = () => {
     };
 
     const handleRequest = async (instructorId) => {
-        if (activeAssignment) {
-            alert("You already have a pending or active mentorship.");
-            return;
-        }
+        if (activeAssignment) return;
 
         try {
             const studentId = localStorage.getItem('studentId');
             await requestInstructor(studentId, instructorId);
             alert("Mentorship request sent successfully!");
-
-            // Instantly update the UI to show the specific instructor as requested
-            setActiveAssignment({
-                instructor: { id: instructorId },
-                status: 'PENDING'
-            });
+            fetchData(); // Refresh to get the actual assignment ID
         } catch (e) {
             alert("Failed to send request. " + e.message);
+        }
+    };
+
+    // 🚨 NEW: Handle Dropping the Instructor
+    const handleDrop = async (assignmentId) => {
+        if (window.confirm("Are you sure you want to drop this instructor? You will lose access to the chat.")) {
+            try {
+                await dropInstructor(assignmentId);
+                setActiveAssignment(null); // Instantly restore UI to normal state!
+                alert("Instructor dropped successfully.");
+            } catch (error) {
+                alert("Failed to drop instructor. " + error.message);
+            }
         }
     };
 
@@ -92,8 +94,10 @@ const InstructorsList = () => {
         ? instructors
         : instructors.filter(inst => inst.expertiseFields?.some(f => f.replace('_', ' ') === activeCategory));
 
+    const hasInstructor = activeAssignment !== null;
+
     return (
-        <div className="student-home-container" style={{ minHeight: '100vh', padding: '40px', backgroundColor: '#F8FAFC' }}>
+        <div className="instructors-page-wrapper">
 
             <button onClick={() => navigate('/home')} className="back-button-modern">
                 <ArrowLeft size={18} /> Dashboard
@@ -102,22 +106,62 @@ const InstructorsList = () => {
             <div className="mentors-header-section">
                 <div className="mentors-header-text">
                     <span className="find-guide-badge">✨ FIND YOUR GUIDE</span>
-                    <h1 className="hero-title" style={{ color: '#1E293B', fontSize: '42px', marginBottom: '16px' }}>Available Mentors</h1>
+                    {/* 🚨 Dynamic Title based on state */}
+                    <h1 className="hero-title" style={{ color: '#1E293B', fontSize: '42px', marginBottom: '16px' }}>
+                        {hasInstructor ? 'Other Available Mentors' : 'Choose Your Mentor'}
+                    </h1>
                     <p style={{ color: '#64748B', maxWidth: '600px', lineHeight: '1.6' }}>
                         Browse our community of experts ready to guide you through your roadmap. Find someone who matches your vibe and request mentorship!
                     </p>
                 </div>
 
-                {activeAssignment && (
+                {/* Show Pending Status if not approved yet */}
+                {activeAssignment && activeAssignment.status === 'PENDING' && (
                     <div className="status-floating-card">
                         <span className="status-label">STATUS</span>
-                        <div className="status-active">
-                            <CheckCircle2 size={18} /> {activeAssignment.status === 'APPROVED' ? 'Mentorship Active!' : 'Request Sent!'}
+                        <div className="status-active" style={{ color: '#F59E0B' }}>
+                            <CheckCircle2 size={18} /> Request Sent!
                         </div>
-                        <span className="status-sub">{activeAssignment.status === 'APPROVED' ? 'Check your messages' : 'Waiting for response...'}</span>
+                        <span className="status-sub">Waiting for response...</span>
                     </div>
                 )}
             </div>
+
+            {/* 🚨 NEW: The "Your Instructor" Premium Card (Shows only when APPROVED) */}
+            {activeAssignment && activeAssignment.status === 'APPROVED' && (
+                <div style={{
+                    background: 'linear-gradient(135deg, #F3E8FF 0%, #FFFFFF 100%)',
+                    border: '1px solid #D8B4FE',
+                    borderRadius: '20px',
+                    padding: '24px',
+                    marginBottom: '40px',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    boxShadow: '0 4px 15px rgba(139, 92, 246, 0.1)'
+                }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+                        <div className="modern-avatar" style={{ backgroundColor: '#8B5CF6', width: '64px', height: '64px', fontSize: '24px' }}>
+                            {getInitials(activeAssignment.instructor?.fullName)}
+                        </div>
+                        <div>
+                            <span style={{ fontSize: '12px', fontWeight: '800', color: '#8B5CF6', letterSpacing: '1px', textTransform: 'uppercase' }}>YOUR INSTRUCTOR</span>
+                            <h2 style={{ margin: '4px 0', fontSize: '24px', color: '#1E293B' }}>{activeAssignment.instructor?.fullName}</h2>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '14px', color: '#10B981', fontWeight: '600' }}>
+                                <CheckCircle2 size={16} /> Approved & Active
+                            </div>
+                        </div>
+                    </div>
+                    <div style={{ display: 'flex', gap: '12px' }}>
+                        <button onClick={() => navigate('/instructor-chat')} style={{ padding: '12px 24px', borderRadius: '12px', background: '#8B5CF6', color: 'white', border: 'none', fontWeight: '600', cursor: 'pointer', display: 'flex', gap: '8px', alignItems: 'center' }}>
+                            <MessageSquare size={18} /> Chat
+                        </button>
+                        <button onClick={() => handleDrop(activeAssignment.id)} style={{ padding: '12px 24px', borderRadius: '12px', background: '#FEE2E2', color: '#EF4444', border: 'none', fontWeight: '700', cursor: 'pointer', display: 'flex', gap: '8px', alignItems: 'center' }}>
+                            <Trash2 size={18} /> Drop Instructor
+                        </button>
+                    </div>
+                </div>
+            )}
 
             <div className="categories-scroll-wrapper">
                 {dynamicCategories.map(cat => (
@@ -133,19 +177,21 @@ const InstructorsList = () => {
 
             <div className="section-divider">
                 <Users size={18} color="#8B5CF6" />
-                <span style={{ fontWeight: 800, color: '#475569', fontSize: '14px', letterSpacing: '0.5px' }}>MORE GREAT MENTORS</span>
+                <span style={{ fontWeight: 800, color: '#475569', fontSize: '14px', letterSpacing: '0.5px' }}>
+                    {hasInstructor ? 'OTHER INSTRUCTORS' : 'ALL INSTRUCTORS'}
+                </span>
             </div>
 
             <div className="modern-instructors-grid">
                 {filteredInstructors.map((instructor, index) => {
                     const color = cardColors[index % cardColors.length];
 
-                    // FIX 2 LOGIC: Check if THIS specific card is the one the user requested
                     const isThisInstructorRequested = activeAssignment?.instructor?.id === instructor.id;
-                    const isAnyRequestActive = activeAssignment !== null;
+                    // 🚨 Faded State Logic
+                    const isFaded = hasInstructor && !isThisInstructorRequested;
 
                     return (
-                        <div key={instructor.id} className="modern-instructor-card">
+                        <div key={instructor.id} className="modern-instructor-card" style={{ opacity: isFaded ? 0.6 : 1, transition: 'opacity 0.3s' }}>
                             <div className="card-top-border" style={{ backgroundColor: color }}></div>
 
                             <div className="card-header-row">
@@ -156,7 +202,6 @@ const InstructorsList = () => {
 
                             <h3 className="modern-instructor-name">{instructor.fullName}</h3>
 
-                            {/* FIX 1: Display all expertise fields separated by commas */}
                             <div className="expertise-line">
                                 <Code size={14} style={{ flexShrink: 0 }} />
                                 <span style={{ display: 'inline-block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
@@ -187,13 +232,16 @@ const InstructorsList = () => {
                                 <Award size={14} /> {instructor.yearsOfExperience || 0} Years Experience
                             </div>
 
-                            {/* FIX 2 UI: Only apply the 'requested' class if it matches this instructor */}
                             <button
                                 className={`btn-request-modern ${isThisInstructorRequested ? 'requested' : ''}`}
-                                disabled={isAnyRequestActive}
+                                disabled={hasInstructor}
                                 onClick={() => handleRequest(instructor.id)}
                             >
-                                {isThisInstructorRequested ? <><CheckCircle2 size={16} /> Requested</> : 'Request Mentorship'}
+                                {hasInstructor
+                                    ? (isThisInstructorRequested
+                                        ? <><CheckCircle2 size={16} /> {activeAssignment.status === 'APPROVED' ? 'Assigned' : 'Requested'}</>
+                                        : 'You already have a mentor')
+                                    : 'Request Mentorship'}
                             </button>
                         </div>
                     );

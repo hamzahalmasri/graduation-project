@@ -22,3 +22,22 @@ export const getStudentAssignment = async () => {
     if (!response.ok) throw new Error('Failed to load assignment');
     return await response.json();
 };
+
+export const dropInstructor = async (assignmentId) => {
+    const response = await fetch(`${BASE_URL}/${assignmentId}/drop`, {
+        method: 'PUT',
+        headers: getHeaders()
+    });
+
+    if (!response.ok) throw new Error('Failed to drop instructor');
+    return await response.json();
+};
+
+export const requestInstructor = async (studentId, instructorId) => {
+    const response = await fetch(`${BASE_URL}?studentId=${studentId}&instructorId=${instructorId}`, {
+        method: 'POST',
+        headers: getHeaders()
+    });
+    if (!response.ok) throw new Error('Failed to request instructor');
+    return response.json();
+};

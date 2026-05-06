@@ -109,7 +109,8 @@
 
 .form-container {
     width: 100%;
-    max-width: 440px;
+    max-width: 550px;
+    /* Increased to take up more right-side space */
     background: var(--color-bg-page);
 }
 
@@ -125,9 +126,23 @@
     margin: 0 0 8px 0;
 }
 
+.wave-emoji {
+    color: yellow !important;
+    display: inline-block;
+    animation: wave 2s infinite;
+}
+
+/*.welcome-title {
+    color: #7C3AED;
+     Colored the text to match the theme 
+}*/
+
+
+
+
 .subtitle {
-    font-size: 14px;
-    color: var(--color-text-subtitle);
+    font-size: 20px;
+    color: #111827ad;
     margin-bottom: 30px;
 }
 
@@ -445,7 +460,6 @@
     bottom: 5%;
     left: -100px;
     animation-delay: -4s;
-    /* Offset the animation so they pulse at different times */
 }
 
 /* The glassmorphic circles holding the icons */
@@ -462,7 +476,6 @@
     backdrop-filter: blur(8px);
     z-index: 1;
     pointer-events: none;
-    /* Prevents icons from blocking text selection */
 }
 
 /* Specific positions and animation timings for each icon */
@@ -488,6 +501,25 @@
     bottom: 15%;
     right: 20%;
     animation: float-1 9s ease-in-out infinite reverse;
+}
+
+.icon-5 {
+    top: 40%;
+    left: 10%;
+    animation: float-2 6s ease-in-out infinite reverse;
+}
+
+.icon-6 {
+    top: 50%;
+    right: 12%;
+    animation: float-1 7.5s ease-in-out infinite;
+}
+
+
+.icon-8 {
+    top: 10%;
+    right: 30%;
+    animation: float-2 7s ease-in-out infinite reverse;
 }
 
 .auth-logo-image {

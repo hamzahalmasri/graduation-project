@@ -6,7 +6,10 @@
 
 .quiz-dashboard-wrapper {
     font-family: 'Inter', sans-serif;
-    background: #F8FAFC;
+    /* 🚨 CHANGED: Added glowing radial gradients matching splash/home/roadmaps */
+    background: radial-gradient(circle at 15% 15%, #E0F2FE 0%, transparent 40%),
+        radial-gradient(circle at 85% 85%, #E9D5FF 0%, transparent 50%),
+        #F8FAFC;
     min-height: 100vh;
     width: 100%;
 }
@@ -16,9 +19,11 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 16px 40px;
-    background-color: #FFFFFF;
-    border-bottom: 1px solid #E5E7EB;
+    padding: 16px 48px;
+    /* 🚨 CHANGED: Made the background slightly transparent glass so the glow shines through */
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid rgba(229, 231, 235, 0.5);
 }
 
 .nav-left {
@@ -41,6 +46,7 @@
 .nav-page-title {
     font-weight: 600;
     color: #111827;
+    font-size: 30px;
 }
 
 .btn-nav-back {
@@ -65,9 +71,10 @@
 
 /* --- Container --- */
 .dashboard-container {
-    max-width: 1100px;
+    /* 🚨 CHANGED: Increased from 1100px to 1600px to take up most of the page width */
+    max-width: 1600px;
     margin: 0 auto;
-    padding: 32px 20px;
+    padding: 32px 48px;
 }
 
 /* --- Hero Banner --- */
@@ -240,7 +247,7 @@
 }
 
 .filter-pill {
-    background: white;
+    background: rgba(255, 255, 255, 0.9);
     border: 1px solid #E5E7EB;
     padding: 8px 16px;
     border-radius: 20px;
@@ -273,7 +280,7 @@
 }
 
 .recommended-card {
-    background: white;
+    background: rgba(255, 255, 255, 0.9);
     border-radius: 20px;
     padding: 32px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
@@ -282,6 +289,12 @@
     align-items: center;
     margin-bottom: 40px;
     border: 1px solid #E5E7EB;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.recommended-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
 }
 
 .rec-badge {
@@ -392,7 +405,7 @@
 }
 
 .quiz-card {
-    background: white;
+    background: rgba(255, 255, 255, 0.9);
     border-radius: 16px;
     padding: 24px;
     border: 1px solid #E5E7EB;

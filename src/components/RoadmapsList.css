@@ -2,7 +2,10 @@
 
 .rl-wrapper {
     min-height: 100vh;
-    background-color: #F8FAFC;
+    /* 🚨 CHANGED: Added glowing radial gradients matching splash/home */
+    background: radial-gradient(circle at 15% 15%, #E0F2FE 0%, transparent 40%),
+        radial-gradient(circle at 85% 85%, #E9D5FF 0%, transparent 50%),
+        #F8FAFC;
     font-family: 'Inter', sans-serif;
     color: #111827;
     display: flex;
@@ -19,8 +22,10 @@
     justify-content: space-between;
     align-items: center;
     padding: 16px 40px;
-    background-color: #FFFFFF;
-    border-bottom: 1px solid #E5E7EB;
+    /* 🚨 CHANGED: Made the background slightly transparent glass so the glow shines through */
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid rgba(229, 231, 235, 0.5);
 }
 
 .rl-nav-left {
@@ -58,9 +63,11 @@
 
 /* --- Main Layout --- */
 .rl-main-container {
-    max-width: 1200px;
+    /* 🚨 CHANGED: Increased from 1200px to 1600px to take up most of the page width */
+    max-width: 1600px;
     margin: 0 auto;
-    padding: 40px 20px;
+    padding: 40px 48px;
+    /* Adjusted padding to match the home page margins */
     width: 100%;
 }
 
@@ -339,7 +346,8 @@
     max-width: 500px;
     margin: 40px auto;
     text-align: center;
-    background: #FFFFFF;
+    background: rgba(255, 255, 255, 0.9);
+    /* Slight transparency */
     border: 1px dashed #D1D5DB;
     border-radius: 24px;
     padding: 60px 40px;
@@ -399,8 +407,8 @@
 }
 
 .rl-nav-logo {
-    width: 80px;
-    height: 80px;
+    width: 48px;
+    height: 48px;
 }
 
 @keyframes rl-spin {
@@ -430,5 +438,9 @@
     .rl-stat-box,
     .rl-btn-new {
         width: 100%;
+    }
+
+    .rl-main-container {
+        padding: 20px;
     }
 }

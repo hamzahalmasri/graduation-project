@@ -1,13 +1,15 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@600;700;800&display=swap');
 
-
 /* Master Wrapper */
 .ai-roadmap-wrapper {
     display: flex;
     flex-direction: column;
     height: 100vh;
     width: 100vw;
-    background-color: #F8FAFC;
+    /* 🚨 CHANGED: Added glowing radial gradients matching splash/home */
+    background: radial-gradient(circle at 15% 15%, #E0F2FE 0%, transparent 40%),
+        radial-gradient(circle at 85% 85%, #E9D5FF 0%, transparent 50%),
+        #F8FAFC;
     font-family: 'Inter', sans-serif;
     overflow: hidden;
     box-sizing: border-box;
@@ -22,9 +24,12 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 16px 32px;
-    background: #FFFFFF;
-    border-bottom: 1px solid #E5E7EB;
+    /* 🚨 CHANGED: Reduced padding to make navbar shorter */
+    padding: 8px 32px;
+    /* 🚨 CHANGED: Made the background slightly transparent glass so the glow shines through */
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid rgba(229, 231, 235, 0.5);
     z-index: 10;
 }
 
@@ -42,7 +47,7 @@
 }
 
 .ai-roadmap-page-title {
-    font-size: 16px;
+    font-size: 25px;
     font-weight: 600;
     color: #111827;
 }
@@ -73,7 +78,8 @@
     flex: 1;
     gap: 32px;
     padding: 32px;
-    max-width: 1300px;
+    /* 🚨 CHANGED: Increased from 1300px to 1600px to take up most of the page */
+    max-width: 1600px;
     margin: 0 auto;
     width: 100%;
     overflow: hidden;
@@ -96,7 +102,8 @@
 }
 
 .ai-roadmap-video-card {
-    background: #FFFFFF;
+    background: rgba(255, 255, 255, 0.9);
+    /* Slight transparency to match theme */
     border-radius: 20px;
     padding: 20px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
@@ -154,13 +161,23 @@
 }
 
 .ai-roadmap-inst-card {
-    background: #FFFFFF;
+    background: rgba(255, 255, 255, 0.9);
     border-radius: 16px;
     padding: 16px;
     display: flex;
     gap: 16px;
     border: 1px solid #F3F4F6;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+    /* 🚨 CHANGED: Added smooth transition for hovering */
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease, border-color 0.3s ease;
+    cursor: default;
+}
+
+/* 🚨 CHANGED: Added beautiful hover effect with purple glow and lift */
+.ai-roadmap-inst-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 12px 25px rgba(124, 58, 237, 0.08);
+    border-color: #C4B5FD;
 }
 
 .ai-roadmap-icon-wrap {
@@ -207,7 +224,8 @@
     flex: 1;
     display: flex;
     flex-direction: column;
-    background: #FFFFFF;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(8px);
     border-radius: 24px;
     border: 1px solid #E5E7EB;
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.04);
@@ -221,7 +239,7 @@
     align-items: center;
     gap: 16px;
     border-bottom: 1px solid #F3F4F6;
-    background: #FFFFFF;
+    background: transparent;
 }
 
 
@@ -253,7 +271,7 @@
     display: flex;
     flex-direction: column;
     gap: 20px;
-    background: #FAFAFA;
+    background: transparent;
 }
 
 .ai-roadmap-messages::-webkit-scrollbar {
@@ -276,7 +294,7 @@
 }
 
 .ai-roadmap-bot {
-    background: #F1F5F9;
+    background: #F8FAFC;
     color: #1E293B;
     align-self: flex-start;
     border: 1px solid #E2E8F0;
@@ -350,7 +368,7 @@
     flex-wrap: wrap;
     gap: 10px;
     padding: 16px 24px;
-    background: #FFFFFF;
+    background: transparent;
     border-top: 1px solid #F3F4F6;
 }
 
@@ -369,6 +387,7 @@
 .ai-roadmap-btn-option:hover {
     background: #F5F3FF;
     border-color: #7C3AED;
+    box-shadow: 0 4px 10px rgba(124, 58, 237, 0.1);
 }
 
 /* Input Area */
@@ -376,7 +395,7 @@
     display: flex;
     gap: 16px;
     padding: 20px 24px;
-    background: #FFFFFF;
+    background: transparent;
     border-top: 1px solid #F3F4F6;
 }
 
@@ -385,7 +404,7 @@
     padding: 16px 24px;
     border-radius: 24px;
     border: 1px solid #E5E7EB;
-    background: #F8FAFC;
+    background: #FFFFFF;
     color: #111827;
     font-family: 'Inter', sans-serif;
     font-size: 15px;
@@ -489,9 +508,10 @@
     margin-bottom: 24px;
 }
 
+/* 🚨 CHANGED: Reduced logo size to shrink the navbar height */
 .ai-roadmap-logo {
-    width: 80px;
-    height: 80px;
+    width: 48px;
+    height: 48px;
 }
 
 @keyframes spin {

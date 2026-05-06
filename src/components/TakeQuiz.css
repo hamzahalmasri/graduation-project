@@ -3,9 +3,10 @@
 .take-quiz-light-wrapper {
     font-family: 'Inter', sans-serif;
     min-height: 100vh;
-    background: radial-gradient(circle at 10% 20%, rgba(243, 232, 255, 0.4) 0%, transparent 40%),
-        radial-gradient(circle at 90% 80%, rgba(224, 242, 254, 0.4) 0%, #FAFAFA 40%);
-    background-color: #FAFAFA;
+    /* 🚨 CHANGED: Added the universal glowing radial gradients */
+    background: radial-gradient(circle at 15% 15%, #E0F2FE 0%, transparent 40%),
+        radial-gradient(circle at 85% 85%, #E9D5FF 0%, transparent 50%),
+        #F8FAFC;
     display: flex;
     flex-direction: column;
     color: #111827;
@@ -20,7 +21,7 @@
     justify-content: center;
     font-size: 1.2rem;
     color: #4B5563;
-    background: #FAFAFA;
+    background: transparent;
 }
 
 .text-purple {
@@ -32,8 +33,11 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 16px 32px;
-    background: #FFFFFF;
+    padding: 16px 48px;
+    /* 🚨 CHANGED: Glassmorphic transparent navbar */
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid rgba(229, 231, 235, 0.5);
 }
 
 .nav-exit-btn {
@@ -72,7 +76,7 @@
 .global-progress-track {
     width: 100%;
     height: 4px;
-    background: #F3F4F6;
+    background: rgba(243, 244, 246, 0.5);
 }
 
 .global-progress-fill {
@@ -85,9 +89,10 @@
 .quiz-main-layout {
     display: flex;
     gap: 48px;
-    max-width: 1200px;
+    /* 🚨 CHANGED: Increased from 1200px to 1600px to take up most of the page */
+    max-width: 1600px;
     margin: 48px auto;
-    padding: 0 32px;
+    padding: 0 48px;
     width: 100%;
     align-items: flex-start;
 }
@@ -95,10 +100,12 @@
 /* Left Side: Quiz Card */
 .quiz-card-container {
     flex: 1;
-    background: #FFFFFF;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(8px);
     border-radius: 20px;
     padding: 40px;
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.5);
 }
 
 .card-decor-dots {
@@ -110,7 +117,7 @@
 .dash-purple {
     width: 16px;
     height: 6px;
-    background: #7C3AED;
+    background: linear-gradient(90deg, #8B5CF6, #06B6D4);
     border-radius: 4px;
 }
 
@@ -123,14 +130,15 @@
 
 .question-meta {
     font-size: 11px;
-    font-weight: 700;
-    color: #7C3AED;
+    font-weight: 800;
+    color: #8B5CF6;
     letter-spacing: 1px;
     margin-bottom: 12px;
+    text-transform: uppercase;
 }
 
 .question-text {
-    font-size: 20px;
+    font-size: 22px;
     font-weight: 700;
     color: #1F2937;
     line-height: 1.5;
@@ -150,21 +158,34 @@
     align-items: center;
     gap: 16px;
     padding: 16px;
-    border: 1px solid #E5E7EB;
+    border: 2px solid #E5E7EB;
     border-radius: 12px;
     cursor: pointer;
-    transition: all 0.2s ease;
+    /* Upgraded to a silky smooth bouncy transition */
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
     background: #FFFFFF;
 }
 
-.option-item:hover {
-    border-color: #C4B5FD;
+/* ✨ The Beautiful Hover Effect */
+.option-item:hover:not(.selected) {
+    border-color: #8B5CF6;
     background: #FAFAFA;
+    transform: translateY(-4px) scale(1.01);
+    box-shadow: 0 12px 24px rgba(139, 92, 246, 0.12);
 }
 
+/* ✨ Make the letter box react to the hover */
+.option-item:hover:not(.selected) .option-letter-box {
+    background: #EDE9FE;
+    color: #8B5CF6;
+    transform: scale(1.1) rotate(-3deg);
+}
+
+/* 🚨 CHANGED: Added beautiful colorful borders and glowing shadows for selected option */
 .option-item.selected {
-    border-color: #7C3AED;
+    border-color: #8B5CF6;
     background: #F5F3FF;
+    box-shadow: 0 8px 20px rgba(139, 92, 246, 0.15);
 }
 
 .option-letter-box {
@@ -181,20 +202,23 @@
     transition: all 0.2s;
 }
 
+/* 🚨 CHANGED: Vibrant gradient box for the selected option letter */
 .option-item.selected .option-letter-box {
-    background: #EDE9FE;
-    color: #7C3AED;
+    background: linear-gradient(135deg, #8B5CF6 0%, #06B6D4 100%);
+    color: #FFFFFF;
+    border: none;
 }
 
 .option-text {
     flex: 1;
-    font-size: 15px;
+    font-size: 16px;
     font-weight: 500;
     color: #374151;
 }
 
 .option-item.selected .option-text {
     color: #111827;
+    font-weight: 600;
 }
 
 .radio-icon {
@@ -208,7 +232,7 @@
 }
 
 .checked-icon {
-    color: #7C3AED;
+    color: #8B5CF6;
 }
 
 /* Card Footer */
@@ -222,7 +246,7 @@
 
 .percent-complete {
     font-size: 13px;
-    font-weight: 500;
+    font-weight: 600;
     color: #9CA3AF;
 }
 
@@ -231,24 +255,25 @@
     gap: 12px;
 }
 
+/* 🚨 CHANGED: Fixed Back button colors! It is now a clean modern gray button */
 .btn-back {
-    background: #8B5CF6 !important;
-    border: none;
-    color: #9CA3AF;
+    background: #F1F5F9 !important;
+    color: #475569 !important;
+    border: 1px solid #E2E8F0 !important;
     font-size: 14px;
     font-weight: 600;
     display: flex;
     align-items: center;
     gap: 4px;
     cursor: pointer;
-    padding: 10px 16px;
+    padding: 10px 20px;
     border-radius: 20px;
     transition: all 0.2s;
 }
 
 .btn-back:not(:disabled):hover {
-    background: #F3F4F6;
-    color: #4B5563;
+    background: #E2E8F0 !important;
+    color: #1E293B !important;
 }
 
 .btn-back:disabled {
@@ -256,34 +281,32 @@
     cursor: not-allowed;
 }
 
+/* 🚨 CHANGED: Fixed Next button to use a beautiful colorful gradient */
 .btn-next {
-    background: #8B5CF6;
-    /* Lighter purple by default */
-    color: white;
-    border: none;
+    background: linear-gradient(135deg, #8B5CF6 0%, #06B6D4 100%) !important;
+    color: white !important;
+    border: none !important;
     font-size: 14px;
     font-weight: 600;
-    padding: 10px 24px;
+    padding: 10px 28px;
     border-radius: 24px;
     display: flex;
     align-items: center;
     gap: 6px;
     cursor: pointer;
     transition: all 0.2s;
-}
-
-.btn-next:not(:disabled) {
-    background: #A78BFA;
-    /* Darker purple when active */
+    box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
 }
 
 .btn-next:not(:disabled):hover {
-    background: #8B5CF6;
-    transform: translateY(-1px);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);
 }
 
 .btn-next:disabled {
-    opacity: 0.5;
+    background: #E5E7EB !important;
+    color: #9CA3AF !important;
+    box-shadow: none;
     cursor: not-allowed;
 }
 
@@ -349,8 +372,8 @@
 .completion-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(255, 255, 255, 0.8);
-    backdrop-filter: blur(10px);
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(12px);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -369,11 +392,12 @@
 }
 
 .overlay-content {
-    background: white;
+    background: rgba(255, 255, 255, 0.95);
     padding: 48px;
     border-radius: 24px;
     text-align: center;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.5);
     max-width: 400px;
     width: 90%;
 }
@@ -381,7 +405,7 @@
 .trophy-container {
     width: 80px;
     height: 80px;
-    background: #F5F3FF;
+    background: linear-gradient(135deg, #F5F3FF 0%, #E0F2FE 100%);
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -390,8 +414,8 @@
 }
 
 .completion-title {
-    font-size: 24px;
-    font-weight: 700;
+    font-size: 26px;
+    font-weight: 800;
     color: #111827;
     margin: 0 0 12px 0;
 }
@@ -403,20 +427,22 @@
 }
 
 .btn-return-home {
-    background: #7C3AED;
+    background: linear-gradient(135deg, #8B5CF6 0%, #06B6D4 100%);
     color: white;
     border: none;
     padding: 14px 28px;
-    border-radius: 12px;
+    border-radius: 14px;
     font-size: 15px;
-    font-weight: 600;
+    font-weight: 700;
     width: 100%;
     cursor: pointer;
-    transition: background 0.2s;
+    transition: all 0.2s;
+    box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
 }
 
 .btn-return-home:hover {
-    background: #6D28D9;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);
 }
 
 /* Responsive */

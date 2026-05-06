@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Brain, Send, Sparkles, ArrowLeft, Target, Zap, Shield, Loader2 } from 'lucide-react';
-import { sendRoadmapChatMessage, generateUserRoadmap } from '../api/roadmapService';
+import { sendRoadmapChatMessage, createRoadmap } from '../api/roadmapService';
 import logo from '../assets/logo.png';
 import './AiChatbot.css';
 
@@ -15,7 +15,6 @@ const extractOptions = (text) => {
         .filter(opt => opt.length > 0);
 };
 
-// 🚨 Define the exact order of questions expected by the backend
 const QUESTION_KEYS = [
     'learningPath',
     'roadmapLength',
@@ -28,27 +27,58 @@ const QUESTION_KEYS = [
 const AiChatbot = () => {
     const navigate = useNavigate();
     const chatContainerRef = useRef(null);
+    const hasInitialized = useRef(false);
 
-    const [messages, setMessages] = useState([
-        { sender: 'bot', text: "Hello! 👋 Welcome to your Personalized Learning Roadmap Assistant.\n\nI'll ask you a few quick questions to understand your goals, then generate a customized roadmap just for you.\n\nFirst Question:\nWhat learning path are you interested in?\n- Python Programming\n- Frontend Web Development\n- Backend Web Development\n- Machine Learning" }
-    ]);
+    const studentId = localStorage.getItem('studentId') || 'guest';
+    const sessionId = useRef(`session-${studentId}-${Date.now()}`);
+
+    const [history, setHistory] = useState([]);
+    const [currentQuestion, setCurrentQuestion] = useState(0);
+    const [messages, setMessages] = useState([]);
+
+    const [answers, setAnswers] = useState({
+        learningPath: '',
+        roadmapLength: '',
+        learningStyle: '',
+        weeklyStudyTime: '',
+        mainGoal: '',
+        confidenceLevel: ''
+    });
+
+    const [currentOptions, setCurrentOptions] = useState([]);
     const [inputText, setInputText] = useState('');
-    const [isTyping, setIsTyping] = useState(false);
+    const [isTyping, setIsTyping] = useState(true);
     const [isGenerating, setIsGenerating] = useState(false);
 
-    // 🚨 NEW: Track the user's explicit answers
-    const [answers, setAnswers] = useState({
-        learningPath: "",
-        roadmapLength: "",
-        learningStyle: "",
-        weeklyStudyTime: "",
-        mainGoal: "",
-        confidenceLevel: ""
-    });
+    // Auto-start the conversation on load
+    useEffect(() => {
+        if (!hasInitialized.current) {
+            hasInitialized.current = true;
+            startConversation();
+        }
+    }, []);
 
-    const [currentOptions, setCurrentOptions] = useState(() => {
-        return extractOptions(messages?.text || "");
-    });
+    const startConversation = async () => {
+        try {
+            const initialHistory = [{ role: 'user', text: 'Hello' }];
+            const requestBody = {
+                message: "User: Hello",
+                sessionId: sessionId.current
+            };
+
+            const botReply = await sendRoadmapChatMessage(requestBody);
+
+            setHistory([...initialHistory, { role: 'bot', text: botReply }]);
+            setMessages([{ sender: 'bot', text: botReply }]);
+            setCurrentOptions(extractOptions(botReply));
+            setCurrentQuestion(1);
+        } catch (error) {
+            console.error("Failed to start chat", error);
+            setMessages([{ sender: 'bot', text: "Error connecting to AI. Please refresh the page." }]);
+        } finally {
+            setIsTyping(false);
+        }
+    };
 
     const scrollToBottom = () => {
         if (chatContainerRef.current) {
@@ -59,108 +89,102 @@ const AiChatbot = () => {
 
     useEffect(() => { scrollToBottom(); }, [messages, isTyping, currentOptions]);
 
-    // 🚨 NEW: Helper function to save the answer to the correct state key
-    const saveAnswer = (userResponse) => {
-        // Count how many user messages exist BEFORE this new one is added.
-        // If 0 user messages exist, this response maps to index 0 (learningPath), etc.
-        const userMessageCount = messages.filter(m => m.sender === 'user').length;
+    const handleUserAnswer = async (userAnswer) => {
+        if (!userAnswer.trim() || isTyping || isGenerating) return;
 
-        if (userMessageCount < QUESTION_KEYS.length) {
-            const currentKey = QUESTION_KEYS[userMessageCount];
-            setAnswers(prev => ({
-                ...prev,
-                [currentKey]: userResponse
-            }));
-        }
-    };
-
-    const handleOptionClick = async (option) => {
-        if (isTyping || isGenerating) return;
-
-        saveAnswer(option); // Save the answer to state!
-
-        setCurrentOptions([]);
-        setMessages(prev => [...prev, { sender: 'user', text: option }]);
-        setIsTyping(true);
-
-        try {
-            const replyText = await sendRoadmapChatMessage(option);
-            setMessages(prev => [...prev, { sender: 'bot', text: replyText }]);
-            setCurrentOptions(extractOptions(replyText));
-        } catch (error) {
-            setMessages(prev => [...prev, { sender: 'bot', text: error.message }]);
-            setCurrentOptions([]);
-        } finally {
-            setIsTyping(false);
-        }
-    };
-
-    const handleSendMessage = async () => {
-        if (!inputText.trim() || isTyping) return;
-
-        const userMsg = inputText.trim();
         setInputText('');
-
-        saveAnswer(userMsg); // Save the manually typed answer to state!
-
         setCurrentOptions([]);
-        setMessages(prev => [...prev, { sender: 'user', text: userMsg }]);
         setIsTyping(true);
 
+        // Track the answer
+        let updatedAnswers = { ...answers };
+        const keyIndex = currentQuestion - 1;
+
+        if (keyIndex >= 0 && keyIndex < QUESTION_KEYS.length) {
+            const keyName = QUESTION_KEYS[keyIndex];
+            updatedAnswers[keyName] = userAnswer;
+            setAnswers(updatedAnswers);
+        }
+
+        const newHistory = [...history, { role: 'user', text: userAnswer }];
+        setHistory(newHistory);
+        setMessages(prev => [...prev, { sender: 'user', text: userAnswer }]);
+
+        const historyString = newHistory
+            .map(msg => `${msg.role === 'user' ? 'User' : 'Assistant'}: ${msg.text}`)
+            .join('\n');
+
+        const requestBody = {
+            message: historyString,
+            sessionId: sessionId.current
+        };
+
+        if (currentQuestion === 6) {
+            requestBody.learningPath = updatedAnswers.learningPath;
+            setIsGenerating(true);
+        }
+
         try {
-            const replyText = await sendRoadmapChatMessage(userMsg);
-            setMessages(prev => [...prev, { sender: 'bot', text: replyText }]);
-            setCurrentOptions(extractOptions(replyText));
+            const botReply = await sendRoadmapChatMessage(requestBody);
+
+            // 🚀 FIXED: Strip Markdown tags from the AI's response before parsing!
+            try {
+                // This removes ```json and ``` from the string
+                const cleanJsonString = botReply.replace(/```json/gi, '').replace(/```/g, '').trim();
+                const parsed = JSON.parse(cleanJsonString);
+
+                if (parsed.phases) {
+                    await saveRoadmap(parsed, updatedAnswers);
+                    return; // Stop here, redirecting!
+                }
+            } catch (e) {
+                console.warn("Failed to parse AI response as JSON", e);
+            }
+
+            setHistory([...newHistory, { role: 'bot', text: botReply }]);
+            setMessages(prev => [...prev, { sender: 'bot', text: botReply }]);
+            setCurrentOptions(extractOptions(botReply));
+            setCurrentQuestion(prev => prev + 1);
+
         } catch (error) {
-            setMessages(prev => [...prev, { sender: 'bot', text: error.message }]);
-            setCurrentOptions([]);
+            setMessages(prev => [...prev, { sender: 'bot', text: "Sorry, I lost connection to the server." }], error);
         } finally {
             setIsTyping(false);
         }
     };
 
-    const handleGenerate = async () => {
-        const studentId = localStorage.getItem('studentId');
-        if (!studentId) {
-            alert("Please log in to generate a roadmap.");
+    const saveRoadmap = async (roadmapJson, finalAnswers) => {
+        if (studentId === 'guest') {
+            alert("Please log in to save your roadmap!");
+            setIsGenerating(false);
+            navigate('/roadmaps');
             return;
         }
 
-        setIsGenerating(true);
         try {
-            // 🚨 NEW: Package the fully tracked answers exactly how the backend requested
-            const requestPayload = {
-                userId: studentId,
-                learningPath: answers.learningPath,
-                roadmapLength: answers.roadmapLength,
-                learningStyle: answers.learningStyle,
-                weeklyStudyTime: answers.weeklyStudyTime,
-                mainGoal: answers.mainGoal,
-                confidenceLevel: answers.confidenceLevel
-            };
+            const saved = await createRoadmap({
+                userId: parseInt(studentId),
+                learningPath: finalAnswers.learningPath,
+                roadmapLength: finalAnswers.roadmapLength,
+                learningStyle: finalAnswers.learningStyle,
+                weeklyStudyTime: finalAnswers.weeklyStudyTime,
+                mainGoal: finalAnswers.mainGoal,
+                confidenceLevel: finalAnswers.confidenceLevel,
+                roadmapContent: JSON.stringify(roadmapJson)
+            });
 
-            const newRoadmap = await generateUserRoadmap(requestPayload);
-
-            if (newRoadmap && newRoadmap.id) {
-                navigate(`/roadmap/${newRoadmap.id}`);
-            } else {
-                navigate('/roadmaps');
-            }
-        } catch (error) {
-            console.error("Generate error:", error);
-            alert("Failed to generate roadmap. Check your roadmaps list in a minute.");
+            navigate('/roadmap/' + saved.id);
+        } catch (err) {
+            console.error("Failed to save final roadmap", err);
+            alert("Roadmap generated but failed to save to database.");
             setIsGenerating(false);
         }
     };
 
-    const isReadyToGenerate = messages.length >= 12 || messages.some(m =>
-        m.sender === 'bot' && m.text.toLowerCase().includes('ready to generate')
-    );
-
     return (
         <div className="ai-roadmap-wrapper">
 
-            {/* Top Navigation */}
+
             <nav className="ai-roadmap-nav">
                 <div className="ai-roadmap-nav-left">
                     <img src={logo} alt="EduGuide Logo" className="ai-roadmap-logo" />
@@ -170,13 +194,13 @@ const AiChatbot = () => {
                 </div>
                 <div className="ai-roadmap-nav-right">
                     <button className="ai-roadmap-btn-back" onClick={() => navigate('/home')}>
-                        <ArrowLeft size={16} /> Back to Home
+                        <ArrowLeft /> Back to Home
                     </button>
                 </div>
             </nav>
 
             <main className="ai-roadmap-main">
-                {/* Left Sidebar */}
+
                 <aside className="ai-roadmap-sidebar">
                     <div className="ai-roadmap-video-card">
                         <div className="ai-roadmap-robot-status">
@@ -192,21 +216,21 @@ const AiChatbot = () => {
 
                     <div className="ai-roadmap-instructions">
                         <div className="ai-roadmap-inst-card">
-                            <div className="ai-roadmap-icon-wrap red"><Target size={20} /></div>
+                            <div className="ai-roadmap-icon-wrap red"><Target size="{20}" /></div>
                             <div className="ai-roadmap-inst-text">
                                 <h4>Choose your option</h4>
                                 <p>The more detail you choose, the more tailored your roadmap will be.</p>
                             </div>
                         </div>
                         <div className="ai-roadmap-inst-card">
-                            <div className="ai-roadmap-icon-wrap yellow"><Zap size={20} /></div>
+                            <div className="ai-roadmap-icon-wrap yellow"><Zap size="{20}" /></div>
                             <div className="ai-roadmap-inst-text">
                                 <h4>Quick Answers</h4>
                                 <p>Click the suggested options or type your own, both work great!</p>
                             </div>
                         </div>
                         <div className="ai-roadmap-inst-card">
-                            <div className="ai-roadmap-icon-wrap green"><Shield size={20} /></div>
+                            <div className="ai-roadmap-icon-wrap green"><Shield size="{20}" /></div>
                             <div className="ai-roadmap-inst-text">
                                 <h4>Private & Safe</h4>
                                 <p>Your conversation is only used to generate your personal roadmap.</p>
@@ -215,9 +239,9 @@ const AiChatbot = () => {
                     </div>
                 </aside>
 
-                {/* Right Chat Area */}
+
                 <section className="ai-roadmap-chat-area">
-                    {/* Chat Header */}
+
                     <div className="ai-roadmap-chat-header">
                         <div className="ai-roadmap-bot-avatar">
                             <img src={logo} alt="EduBot Avatar" className="ai-roadmap-bot-avatar-img" />
@@ -231,7 +255,7 @@ const AiChatbot = () => {
                         </div>
                     </div>
 
-                    {/* Messages Area */}
+
                     <div className="ai-roadmap-messages" ref={chatContainerRef}>
                         {messages.map((msg, idx) => (
                             <div key={idx} className={`ai-roadmap-bubble ${msg.sender === 'bot' ? 'ai-roadmap-bot' : 'ai-roadmap-user'}`}>
@@ -246,25 +270,16 @@ const AiChatbot = () => {
                                 <div className="ai-roadmap-dot"></div>
                             </div>
                         )}
-
-                        {isReadyToGenerate && !isTyping && (
-                            <div className="ai-roadmap-generate-wrap">
-                                <button className="ai-roadmap-btn-generate" onClick={handleGenerate} disabled={isGenerating}>
-                                    <Sparkles size={16} />
-                                    {isGenerating ? 'Building your path...' : 'Generate My Roadmap Now'}
-                                </button>
-                            </div>
-                        )}
                     </div>
 
-                    {/* Options Grid */}
+
                     {currentOptions.length > 0 && !isTyping && !isGenerating && (
                         <div className="ai-roadmap-options-grid">
                             {currentOptions.map((option, idx) => (
                                 <button
                                     key={idx}
                                     className="ai-roadmap-btn-option"
-                                    onClick={() => handleOptionClick(option)}
+                                    onClick={() => handleUserAnswer(option)}
                                 >
                                     {option}
                                 </button>
@@ -272,29 +287,29 @@ const AiChatbot = () => {
                         </div>
                     )}
 
-                    {/* Input Area */}
+
                     <div className="ai-roadmap-input-area">
                         <input
                             type="text"
                             placeholder="Type a message or click an option above..."
                             value={inputText}
                             onChange={(e) => setInputText(e.target.value)}
-                            onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
+                            onKeyDown={(e) => e.key === 'Enter' && handleUserAnswer(inputText)}
                             disabled={isTyping || isGenerating}
                             className="ai-roadmap-text-input"
                         />
                         <button
                             className="ai-roadmap-btn-send"
-                            onClick={handleSendMessage}
+                            onClick={() => handleUserAnswer(inputText)}
                             disabled={isTyping || isGenerating || !inputText.trim()}
                         >
-                            <Send size={18} />
+                            <Send />
                         </button>
                     </div>
                 </section>
             </main>
 
-            {/* 🎥 Fullscreen Video Loading Overlay */}
+
             {isGenerating && (
                 <div className="ai-roadmap-loading-overlay">
                     <video autoPlay loop muted playsInline className="ai-roadmap-loading-video">

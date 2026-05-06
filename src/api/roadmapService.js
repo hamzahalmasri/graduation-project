@@ -6,51 +6,25 @@ const getHeaders = () => {
     return {
         'Content-Type': 'application/json',
         'ngrok-skip-browser-warning': 'true',
-        // Automatically attach the token if the user is logged in
         ...(token && { 'Authorization': `Bearer ${token}` })
     };
 };
 
-// 1. Chat with AI
-export const sendRoadmapChatMessage = async (messageText) => {
-    const studentId = localStorage.getItem('studentId');
-
-    // This must exactly match the Java backend's format ("user-ID")
-    const sessionId = studentId ? `user-${studentId}` : `guest-${Date.now()}`;
-
+// 1. Chat with AI (🚨 UPDATED TO ACCEPT FULL OBJECT WITH HISTORY & SESSION ID)
+export const sendRoadmapChatMessage = async (requestBody) => {
     const response = await fetch(`${BASE_URL}/chat`, {
         method: 'POST',
         headers: getHeaders(),
-        body: JSON.stringify({
-            message: messageText,
-            sessionId: sessionId
-        })
+        body: JSON.stringify(requestBody)
     });
+
     if (!response.ok) throw new Error('Chat failed');
     return await response.text();
 };
 
-// 2. Generate & Save Roadmap (🚨 NEW UPDATED API PAYLOAD)
-export const generateUserRoadmap = async (data) => {
-    const response = await fetch(`${BASE_URL}/generate`, {
-        method: 'POST',
-        headers: getHeaders(),
-        body: JSON.stringify({
-            userId: data.userId.toString(),
-            learningPath: data.learningPath,
-            roadmapLength: data.roadmapLength,
-            learningStyle: data.learningStyle,
-            weeklyStudyTime: data.weeklyStudyTime,
-            mainGoal: data.mainGoal,
-            confidenceLevel: data.confidenceLevel
-        })
-    });
+// NOTE: generateUserRoadmap has been deleted because the /chat endpoint generates it now!
 
-    if (!response.ok) throw new Error('Failed to generate roadmap');
-    return await response.json();
-};
-
-// 3. Get All User Roadmaps
+// 2. Get All User Roadmaps
 export const getUserRoadmaps = async (userId) => {
     if (!userId) throw new Error("Missing User ID");
 
@@ -62,7 +36,7 @@ export const getUserRoadmaps = async (userId) => {
     return await response.json();
 };
 
-// 4. Get Specific Roadmap
+// 3. Get Specific Roadmap
 export const getRoadmapById = async (roadmapId) => {
     if (!roadmapId) throw new Error("Missing Roadmap ID");
 
@@ -74,7 +48,7 @@ export const getRoadmapById = async (roadmapId) => {
     return await response.json();
 };
 
-// 5. Delete Roadmap
+// 4. Delete Roadmap
 export const deleteRoadmap = async (roadmapId) => {
     const response = await fetch(`${BASE_URL}/${roadmapId}`, {
         method: 'DELETE',
@@ -83,7 +57,7 @@ export const deleteRoadmap = async (roadmapId) => {
     if (!response.ok) throw new Error('Failed to delete roadmap');
 };
 
-// 6. Update Last Opened
+// 5. Update Last Opened
 export const setLastOpenedRoadmap = async (roadmapId, userId) => {
     const response = await fetch(`${BASE_URL}/open/${roadmapId}/user/${userId}`, {
         method: 'PUT',
@@ -92,7 +66,7 @@ export const setLastOpenedRoadmap = async (roadmapId, userId) => {
     if (!response.ok) throw new Error('Failed to update last opened status');
 };
 
-// 7. Update Roadmap
+// 6. Update Roadmap
 export const updateRoadmap = async (roadmapId, roadmapData) => {
     const response = await fetch(`${BASE_URL}/${roadmapId}`, {
         method: 'PUT',
@@ -103,18 +77,18 @@ export const updateRoadmap = async (roadmapId, roadmapData) => {
     return await response.json();
 };
 
-// 8. Create Manual Roadmap
+// 7. Create Manual/Generated Roadmap (🚨 SAVES THE FINAL ROADMAP TO DB)
 export const createRoadmap = async (roadmapData) => {
     const response = await fetch(`${BASE_URL}`, {
         method: 'POST',
         headers: getHeaders(),
         body: JSON.stringify(roadmapData)
     });
-    if (!response.ok) throw new Error('Failed to create roadmap');
+    if (!response.ok) throw new Error('Failed to save roadmap to database');
     return await response.json();
 };
 
-// 9. Mark a Step as Completed/Uncompleted (Progress Tracking)
+// 8. Mark a Step as Completed/Uncompleted (Progress Tracking)
 export const markStepProgress = async (studentId, roadmapId, phaseTitle, stepTitle) => {
     const response = await fetch(PROGRESS_URL, {
         method: 'POST',
@@ -131,7 +105,7 @@ export const markStepProgress = async (studentId, roadmapId, phaseTitle, stepTit
     return await response.json();
 };
 
-// 10. Get Student's Progress for a specific Roadmap
+// 9. Get Student's Progress for a specific Roadmap
 export const getStudentProgress = async (studentId, roadmapId) => {
     const response = await fetch(`${PROGRESS_URL}/student/${studentId}/roadmap/${roadmapId}`, {
         method: 'GET',
