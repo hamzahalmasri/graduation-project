@@ -1,12 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Send, ArrowLeft, Search, Paperclip, Phone, Video, MoreVertical, Sparkles, ChevronDown, ChevronRight, Lock, GraduationCap } from 'lucide-react';
-
-// REAL API IMPORTS
 import { getInstructorStudents } from '../api/instructorDashboardService';
 import { getConversationMessages, sendInstructorMessage, markConversationAsRead } from '../api/messageService';
-
-// We reuse the exact same CSS file to keep the design perfectly identical!
 import './StudentInstructorChat.css';
 
 const InstructorStudentChat = () => {
@@ -20,7 +16,7 @@ const InstructorStudentChat = () => {
     const [messages, setMessages] = useState([]);
     const [inputText, setInputText] = useState('');
     const [isArchivedOpen, setIsArchivedOpen] = useState(true);
-    const [error, setError] = useState(null);
+    const [error, setError] = useState(null); 
 
     // 1. Initial Load: Fetch Instructor's Students
     useEffect(() => {

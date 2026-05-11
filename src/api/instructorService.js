@@ -1,5 +1,4 @@
 const BASE_URL = 'https://coeducational-xochitl-branchiform.ngrok-free.dev/api/users';
-const ASSIGNMENT_URL = 'https://coeducational-xochitl-branchiform.ngrok-free.dev/api/assignments';
 
 /*const BASE_URL = 'https://eduguide-t7xp.onrender.com/api/users';
 const ASSIGNMENT_URL = 'https://eduguide-t7xp.onrender.com/api/assignments';*/
@@ -27,12 +26,3 @@ export const getAllInstructors = async () => {
     return response.json();
 };
 
-// 3. Request an Instructor
-export const requestInstructor = async (studentId, instructorId) => {
-    const response = await fetch(`${ASSIGNMENT_URL}?studentId=${studentId}&instructorId=${instructorId}`, {
-        method: 'POST',
-        headers: getHeaders()
-    });
-    if (!response.ok) throw new Error('Failed to request instructor');
-    return response.json();
-};

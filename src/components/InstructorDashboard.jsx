@@ -256,7 +256,7 @@ const InstructorDashboard = () => {
                                                 <div className="inst-mover-info">
                                                     <div className="inst-mover-name-row">
                                                         <h4>{assignment.student.fullName}</h4>
-                                                        <span className="inst-fire-badge"><Flame size={12} fill="currentColor" /> {Math.floor(assignment.progressPercentage / 10) + 1}</span>
+                                                        <span className="inst-fire-badge"><Flame size={12} fill="currentColor" /> {Math.floor(assignment.progressPercentage)}%</span>
                                                     </div>
                                                     <p className="inst-mover-track">{assignment.learningPath}</p>
                                                     <div className="inst-progress-track">

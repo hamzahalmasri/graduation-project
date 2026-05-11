@@ -16,7 +16,11 @@ export const getStudentAssignment = async () => {
 
     const response = await fetch(`${BASE_URL}/student/${studentId}`, {
         method: 'GET',
-        headers: getHeaders()
+        headers: {
+            ...getHeaders(),
+            'Cache-Control': 'no-cache', // 🚨 FORCES BROWSER TO GET FRESH DATA
+            'Pragma': 'no-cache'
+        }
     });
 
     if (!response.ok) throw new Error('Failed to load assignment');

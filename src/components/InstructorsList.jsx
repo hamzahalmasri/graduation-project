@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, CheckCircle2, Code, Users, Award, MessageSquare, Trash2 } from 'lucide-react';
-import { getAllInstructors, requestInstructor } from '../api/instructorService';
-import { getStudentAssignment, dropInstructor } from '../api/assignmentService';
+import { getAllInstructors } from '../api/instructorService';
+import { getStudentAssignment, dropInstructor, requestInstructor } from '../api/assignmentService';
 import './StudentHomePage.css';
 import './InstructorsList.css';
 
@@ -31,9 +31,17 @@ const InstructorsList = () => {
 
             setInstructors(instData);
 
+            // ✅ THE FIX: Sort by ID to find the newest assignment, ignoring old ghost requests
             if (assignmentData && assignmentData.length > 0) {
-                const activeAssig = assignmentData.find(a => a.status === 'PENDING' || a.status === 'APPROVED');
-                setActiveAssignment(activeAssig || null);
+                const sortedAssignments = assignmentData.sort((a, b) => b.id - a.id);
+                const newestAssignment = sortedAssignments;
+
+                // Only set active if the absolute NEWEST assignment is Pending or Approved
+                if (newestAssignment.status === 'PENDING' || newestAssignment.status === 'APPROVED') {
+                    setActiveAssignment(newestAssignment);
+                } else {
+                    setActiveAssignment(null);
+                }
             } else {
                 setActiveAssignment(null);
             }

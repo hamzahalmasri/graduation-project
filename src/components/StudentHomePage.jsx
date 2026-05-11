@@ -4,8 +4,8 @@ import { Bell, UserCircle, MessageSquare, Map, BrainCircuit, Target, Award, Flam
 import NotificationBell from './NotificationBell';
 
 import { getUserRoadmaps, getLastOpenedProgress } from '../api/roadmapService';
-import { getStudentAssignment, dropInstructor } from '../api/assignmentService';
-import { getTopInstructors, requestInstructor } from '../api/instructorService';
+import { getStudentAssignment, dropInstructor, requestInstructor } from '../api/assignmentService';
+import { getTopInstructors } from '../api/instructorService';
 // 🚨 NEW IMPORT: We bring in the active roadmap fetcher
 import { getStudentActiveRoadmap } from '../api/instructorDashboardService';
 
@@ -93,7 +93,18 @@ const StudentHomePage = () => {
             let activeAssignment = null;
             try {
                 const assignments = await getStudentAssignment(studentId);
-                activeAssignment = assignments && assignments.length > 0 ? assignments.find(a => a.status === 'PENDING' || a.status === 'APPROVED') : null;
+
+                if (assignments && assignments.length > 0) {
+                    // 🚨 THE FIX: Sort by ID so the absolute newest assignment is first
+                    const sortedAssignments = assignments.sort((a, b) => b.id - a.id);
+                    const newestAssignment = sortedAssignments[0];
+
+                    // Only show it if your most recent action is Pending or Approved.
+                    // This permanently stops old "ghost" requests from coming back to life!
+                    if (newestAssignment.status === 'PENDING' || newestAssignment.status === 'APPROVED') {
+                        activeAssignment = newestAssignment;
+                    }
+                }
 
                 const instructors = await getTopInstructors();
                 setTopInstructors(instructors);
