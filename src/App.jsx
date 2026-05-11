@@ -12,6 +12,7 @@ import RoadmapDetail from './components/RoadmapDetail';
 import StudentInstructorChat from './components/StudentInstructorChat';
 import InstructorsList from './components/InstructorsList';
 import InstructorDashboard from './components/InstructorDashboard';
+import InstructorStudentChat from './components/InstructorStudentChat';
 
 
 const ProtectedRoute = ({ children }) => {
@@ -58,6 +59,8 @@ function App() {
           <Route path="/instructors" element={<ProtectedRoute> <InstructorsList /> </ProtectedRoute>} />
 
           <Route path="/instructor-home" element={<ProtectedRoute> <InstructorDashboard /> </ProtectedRoute>} />
+
+          <Route path="/messages" element={<ProtectedRoute> <InstructorStudentChat /> </ProtectedRoute>} />
 
         </Routes>
       </div>

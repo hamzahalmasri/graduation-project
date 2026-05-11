@@ -24,7 +24,7 @@ export const getStudentAssignment = async () => {
 };
 
 export const dropInstructor = async (assignmentId) => {
-    const response = await fetch(`${BASE_URL}/${assignmentId}/drop`, {
+    const response = await fetch(`${BASE_URL}/${assignmentId}/drop?droppedBy=STUDENT`, {
         method: 'PUT',
         headers: getHeaders()
     });
