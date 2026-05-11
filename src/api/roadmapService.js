@@ -115,3 +115,14 @@ export const getStudentProgress = async (studentId, roadmapId) => {
     if (!response.ok) throw new Error('Failed to fetch student progress');
     return await response.json();
 };
+
+// 10. Get Progress for the Last Opened Roadmap
+export const getLastOpenedProgress = async (studentId) => {
+    const response = await fetch(`${PROGRESS_URL}/last-opened/${studentId}`, {
+        method: 'GET',
+        headers: getHeaders()
+    });
+
+    if (!response.ok) throw new Error('Failed to fetch last opened progress');
+    return await response.json();
+};

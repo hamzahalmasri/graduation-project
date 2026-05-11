@@ -11,6 +11,7 @@ import RoadmapsList from './components/RoadmapsList';
 import RoadmapDetail from './components/RoadmapDetail';
 import StudentInstructorChat from './components/StudentInstructorChat';
 import InstructorsList from './components/InstructorsList';
+import InstructorDashboard from './components/InstructorDashboard';
 
 
 const ProtectedRoute = ({ children }) => {
@@ -55,6 +56,8 @@ function App() {
           <Route path="/instructor-chat" element={<ProtectedRoute> <StudentInstructorChat /> </ProtectedRoute>} />
 
           <Route path="/instructors" element={<ProtectedRoute> <InstructorsList /> </ProtectedRoute>} />
+
+          <Route path="/instructor-home" element={<ProtectedRoute> <InstructorDashboard /> </ProtectedRoute>} />
 
         </Routes>
       </div>

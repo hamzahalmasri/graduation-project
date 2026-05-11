@@ -2,14 +2,17 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Bell, UserCircle, MessageSquare, Map, BrainCircuit, Target, Award, Flame, Play, BotMessageSquare, LogOut, ChevronRight, BookOpen, Star, Code, CheckCircle2, Trash2 } from 'lucide-react';
 import NotificationBell from './NotificationBell';
-import { getUserRoadmaps, getStudentProgress } from '../api/roadmapService';
+
+import { getUserRoadmaps, getLastOpenedProgress } from '../api/roadmapService';
 import { getStudentAssignment, dropInstructor } from '../api/assignmentService';
 import { getTopInstructors, requestInstructor } from '../api/instructorService';
+// 🚨 NEW IMPORT: We bring in the active roadmap fetcher
+import { getStudentActiveRoadmap } from '../api/instructorDashboardService';
+
 import green from '../assets/green.svg';
 import logo from '../assets/light-logo.png';
 import './InstructorsList.css';
 import './StudentHomePage.css';
-
 
 const cardColors = ['#0ea5e9', '#ea580c', '#22c55e', '#eab308', '#8b5cf6', '#3b82f6'];
 
@@ -35,7 +38,7 @@ const StudentHomePage = () => {
 
     const getInitials = (name) => {
         if (!name) return "IN";
-        return name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+        return name.split(' ').map(n => n).join('').substring(0, 2).toUpperCase();
     };
 
     const fetchDashboardData = async () => {
@@ -47,37 +50,46 @@ const StudentHomePage = () => {
         try {
             const roadmaps = await getUserRoadmaps(studentId);
             let currentPath = "No active roadmap";
+            let latestRoadmap = null;
+
             let totalSteps = 0;
             let currentStep = 0;
             let progressPercentage = 0;
-            let latestRoadmap = null;
 
             if (roadmaps && roadmaps.length > 0) {
-                latestRoadmap = roadmaps[0];
-                currentPath = latestRoadmap.learningPath || latestRoadmap.mainGoal || "Custom Path";
-
+                // 🚨 THE FIX: Ask the backend exactly which roadmap is currently active!
                 try {
-                    let contentObj = latestRoadmap.roadmapContent;
-                    if (typeof contentObj === 'string') {
-                        contentObj = JSON.parse(contentObj);
-                        if (typeof contentObj === 'string') {
-                            contentObj = JSON.parse(contentObj);
-                        }
-                    }
-                    totalSteps = contentObj?.phases?.reduce((acc, phase) => acc + (phase.steps?.length || 0), 0) || 0;
-                } catch (e) {
-                    console.error("Failed to parse roadmap content", e);
+                    latestRoadmap = await getStudentActiveRoadmap(studentId);
+                } catch (activeErr) {
+                    console.warn("Could not fetch active roadmap, falling back to newest", activeErr);
+                    latestRoadmap = roadmaps[roadmaps.length - 1]; // Fallback to the newest roadmap
                 }
 
-                const progressData = await getStudentProgress(studentId, latestRoadmap.id);
-                const completedRecords = progressData.filter(p => p.status === 'COMPLETED' || p.status?.toUpperCase() === 'COMPLETED');
-                const uniqueCompletedSteps = new Set(completedRecords.map(p => `${p.phaseTitle}|${p.stepTitle}`));
+                currentPath = latestRoadmap.learningPath || latestRoadmap.mainGoal || "Custom Path";
 
-                currentStep = uniqueCompletedSteps.size;
-                progressPercentage = totalSteps === 0 ? 0 : Math.min(100, Math.round((currentStep / totalSteps) * 100));
+                let fallbackTotal = 0;
+                try {
+                    let contentObj = latestRoadmap.roadmapContent;
+                    if (typeof contentObj === 'string') contentObj = JSON.parse(contentObj);
+                    if (typeof contentObj === 'string') contentObj = JSON.parse(contentObj);
+                    fallbackTotal = contentObj?.phases?.reduce((acc, phase) => acc + (phase.steps?.length || 0), 0) || 0;
+                } catch (parseError) {
+                    console.error("Failed to parse fallback total steps", parseError);
+                }
+
+                try {
+                    const progressData = await getLastOpenedProgress(studentId);
+
+                    currentStep = progressData.completedSteps || 0;
+                    totalSteps = fallbackTotal > 0 ? fallbackTotal : (progressData.totalSteps || 0);
+                    progressPercentage = totalSteps === 0 ? 0 : Math.round((currentStep / totalSteps) * 100);
+
+                } catch (e) {
+                    console.error("Failed to fetch smart progress", e);
+                    totalSteps = fallbackTotal;
+                }
             }
 
-            // Fetch Instructor Status
             let activeAssignment = null;
             try {
                 const assignments = await getStudentAssignment(studentId);
@@ -100,7 +112,6 @@ const StudentHomePage = () => {
                 activeAssignment: activeAssignment,
                 quizzesCompleted: 12,
                 bestScore: 98,
-                streakDays: 5
             });
 
         } catch (error) {
@@ -158,48 +169,31 @@ const StudentHomePage = () => {
 
     return (
         <div className="student-home-container">
-
-            {/* 🚨 NEW SIDEBAR */}
             <aside className="sidebar">
                 <div className="sidebar-logo">
                     <img src={logo} alt="Brand Logo" className="logo-image" />
                 </div>
-
                 <div className="sidebar-nav">
                     <button onClick={() => navigate('/chat')}><BotMessageSquare size={18} /> AI Chat</button>
                     <button onClick={() => navigate('/roadmaps')}><Map size={18} /> Roadmap</button>
                     <button onClick={() => navigate('/quizzes')}><BrainCircuit size={18} /> Quizzes</button>
                     <button onClick={() => navigate('/instructor-chat')}><MessageSquare size={18} /> Instructor</button>
                 </div>
-
-                {/* Logout positioned at bottom */}
                 <button className="sidebar-logout" onClick={handleLogout}>
                     <LogOut size={18} /> Logout
                 </button>
             </aside>
 
             <main className="main-content">
-
-                {/* 🚨 FLOATING NOTIFICATION */}
                 <div className="floating-notification">
                     <NotificationBell />
                 </div>
 
-                {/* 🚨 HERO BANNER: Full width, no rounded corners, flush to top */}
                 <section className="hero-banner">
                     <div className="hero-content">
                         <span className="hero-badge">✨ YOUR DASHBOARD</span>
                         <h1 className="hero-title">Welcome again,<br /><span className="highlight-yellow">{userData.fullName}!</span></h1>
-                        <p className="hero-subtext">You're on a {userData.streakDays}-day streak! {userData.progressPercentage}% through your current path.</p>
-
-                        <div className="streak-tracker">
-                            <Flame size={18} color="#FBBF24" fill="#FBBF24" />
-                            <span className="streak-text">{userData.streakDays} Day Streak</span>
-                            <div className="streak-dots">
-                                {[...Array(5)].map((_, i) => <div key={`active-${i}`} className="dot active"></div>)}
-                                {[...Array(2)].map((_, i) => <div key={`inactive-${i}`} className="dot inactive"></div>)}
-                            </div>
-                        </div>
+                        <p className="hero-subtext"> You are {userData.progressPercentage}% through your current path!</p>
 
                         <button className="btn-yellow" onClick={() => userData.roadmapId ? navigate(`/roadmap/${userData.roadmapId}`) : navigate('/chat')}>
                             {userData.roadmapId ? (<><Play size={14} fill="currentColor" /> Continue Learning</>) : "Generate Roadmap"}
@@ -210,10 +204,7 @@ const StudentHomePage = () => {
                     </div>
                 </section>
 
-                {/* Wrapper for the rest of the page to give it padding inside the main content */}
                 <div className="page-inner-content">
-
-                    {/* Quick Actions */}
                     <h2 className="section-title">Quick Actions</h2>
                     <section className="quick-actions-grid">
                         <div className="action-card" onClick={() => navigate('/chat')}>
@@ -293,45 +284,34 @@ const StudentHomePage = () => {
                             return (
                                 <div key={instructor.id} className="modern-instructor-card" style={{ opacity: isFaded ? 0.6 : 1, transition: 'opacity 0.3s' }}>
                                     <div className="card-top-border" style={{ backgroundColor: color }}></div>
-
                                     <div className="card-header-row">
                                         <div className="modern-avatar" style={{ backgroundColor: color }}>
                                             {getInitials(instructor.fullName)}
                                         </div>
                                     </div>
-
                                     <h3 className="modern-instructor-name">{instructor.fullName}</h3>
-
                                     <div className="expertise-line">
                                         <Code size={14} style={{ flexShrink: 0 }} />
                                         <span style={{ display: 'inline-block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                                             {instructor.expertiseFields?.map(f => f.replace('_', ' ')).join(', ')}
                                         </span>
                                     </div>
-
                                     <p className="modern-bio" style={{ fontStyle: instructor.bio ? 'normal' : 'italic', color: instructor.bio ? '#475569' : '#94A3B8' }}>
                                         "{instructor.bio || "This instructor hasn't added a bio yet."}"
                                     </p>
-
                                     <div className="instructor-skills" style={{ justifyContent: 'flex-start', marginTop: 'auto', marginBottom: '16px' }}>
                                         {instructor.skills?.slice(0, expandedSkills[instructor.id] ? instructor.skills.length : 3).map((skill, idx) => (
                                             <span key={idx} className="badge-skill-modern">{skill}</span>
                                         ))}
-
                                         {instructor.skills?.length > 3 && (
-                                            <span
-                                                className="badge-skill-more-modern"
-                                                onClick={(e) => toggleSkills(e, instructor.id)}
-                                            >
+                                            <span className="badge-skill-more-modern" onClick={(e) => toggleSkills(e, instructor.id)}>
                                                 {expandedSkills[instructor.id] ? 'Less' : `+${instructor.skills.length - 3}`}
                                             </span>
                                         )}
                                     </div>
-
                                     <div className="instructor-exp-modern">
                                         <Award size={14} /> {instructor.yearsOfExperience || 0} Years Experience
                                     </div>
-
                                     <button
                                         className={`btn-request-modern ${isThisInstructorRequested ? 'requested' : ''}`}
                                         disabled={isRequesting || hasInstructor}
@@ -348,7 +328,6 @@ const StudentHomePage = () => {
                         )}
                     </section>
 
-                    {/* Your Progress */}
                     <h2 className="section-title">Your Progress</h2>
                     <section className="progress-overview-grid">
                         <div className="progress-stat-card">
@@ -383,8 +362,7 @@ const StudentHomePage = () => {
                         </div>
                     </section>
 
-                    {/* In Progress Card */}
-                    {userData.totalSteps > 0 && (
+                    {userData.totalSteps > 0 ? (
                         <section className="in-progress-card">
                             <div className="in-progress-header">
                                 <div className="header-left">
@@ -392,7 +370,6 @@ const StudentHomePage = () => {
                                     <h2 className="path-title">{userData.currentPath}</h2>
                                 </div>
                             </div>
-
                             <div className="progress-details">
                                 <span className="step-count">Step {userData.currentStep} of {userData.totalSteps}</span>
                                 <div className="right-stats">
@@ -400,11 +377,9 @@ const StudentHomePage = () => {
                                     <span className="percentage">{userData.progressPercentage}%</span>
                                 </div>
                             </div>
-
                             <div className="linear-progress-track">
                                 <div className="linear-progress-fill" style={{ width: `${userData.progressPercentage}%` }}></div>
                             </div>
-
                             <div className="in-progress-footer">
                                 <div className="circular-progress-section">
                                     <div className="circular-progress" style={{ background: `conic-gradient(#7C3AED ${userData.progressPercentage}%, #F3F4F6 0)` }}>
@@ -418,6 +393,17 @@ const StudentHomePage = () => {
                                     </div>
                                 </div>
                             </div>
+                        </section>
+                    ) : (
+                        <section className="in-progress-card" style={{ textAlign: 'center', padding: '40px 20px' }}>
+                            <div style={{ marginBottom: '16px' }}>
+                                <Map size={48} color="#CBD5E1" style={{ margin: '0 auto' }} />
+                            </div>
+                            <h3 style={{ color: '#1E293B', fontSize: '20px', marginBottom: '8px' }}>No Active Progress</h3>
+                            <p style={{ color: '#64748B', fontSize: '14px', marginBottom: '24px' }}>Open a roadmap to start tracking your learning journey here.</p>
+                            <button className="btn-purple" onClick={() => navigate('/roadmaps')}>
+                                View My Roadmaps
+                            </button>
                         </section>
                     )}
                 </div>

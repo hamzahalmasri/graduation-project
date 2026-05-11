@@ -89,14 +89,29 @@ const AuthForm = () => {
         try {
             setIsLoading(true);
             const response = await loginUser({ email: data.loginEmail, password: data.loginPassword });
+            console.log("🚨 BACKEND RESPONSE:", response);
             localStorage.setItem('isLoggedIn', 'true');
             localStorage.setItem('studentId', response.id);
-            const userRole = response.accountType || response.role || (response.user && response.user.role);
-            if (userRole) localStorage.setItem('userRole', userRole.toLowerCase());
+            localStorage.setItem('instructorId', response.id);
+
+            // Grabs the real full name from your backend response
+            const realName = response.fullName || (response.user && response.user.fullName) || 'User';
+            localStorage.setItem('userName', realName);
+
+            // 🚨 CHANGED: Strictly use accountType as requested by the backend!
+            const accountType = response.accountType;
+
+            if (accountType) {
+                localStorage.setItem('userRole', accountType.toLowerCase());
+            }
+
             setIsLoading(false);
-            if (userRole && userRole.toLowerCase() === 'instructor') {
+
+            // 🚨 CHANGED: Route strictly based on accountType
+            if (accountType === 'INSTRUCTOR') {
                 navigate('/instructor-home');
             } else {
+                // For "STUDENT"
                 navigate('/home');
             }
         } catch (error) {
@@ -116,26 +131,36 @@ const AuthForm = () => {
             accountType: data.role.toUpperCase(),
 
             ...(data.role === 'student' && {
-                major: data.major,
-                skills: skills.join(', '),
-                interests: interests.join(', ')
+                major: data.major || "N/A",
+                skills: skills.length > 0 ? skills : ["General"], // Prevents empty array error
+                interests: interests.length > 0 ? interests.join(', ') : "General",
+                expertiseFields: ["FRONTEND"],
+                yearsOfExperience: 0,
+                bio: "I am a student"
             }),
 
             ...(data.role === 'instructor' && {
-                expertiseField: data.expertiseField,
+                expertiseFields: [data.expertiseField],
                 yearsOfExperience: Number(data.yearsOfExperience),
                 bio: data.bio,
-                skills: instructorSkills.join(', ')
+                skills: instructorSkills
             })
         };
 
         try {
             setIsLoading(true);
             const response = await registerUser(payload);
+
             localStorage.setItem('isLoggedIn', 'true');
             localStorage.setItem('userRole', data.role.toLowerCase());
-            if (response && response.id) localStorage.setItem('studentId', response.id);
-            localStorage.setItem('userName', 'Student');
+            if (response && response.id) {
+                localStorage.setItem('studentId', response.id);
+                localStorage.setItem('instructorId', response.id);
+            }
+
+            // 🚨 CHANGED: We save exactly what the user typed in the Full Name box!
+            localStorage.setItem('userName', data.fullName);
+
             setTimeout(() => {
                 if (data.role === 'student') navigate('/welcome');
                 else if (data.role === 'instructor') navigate('/instructor-home');
@@ -145,6 +170,7 @@ const AuthForm = () => {
             setIsLoading(false);
         }
     };
+
 
     return (
         <div className="auth-layout">
@@ -319,10 +345,22 @@ const AuthForm = () => {
                                     </div>
 
                                     <div className="input-group">
-                                        <label>EXPERTISE FIELD</label>
                                         <div className="input-field">
                                             <Award size={18} />
-                                            <input type="text" placeholder="e.g. Machine Learning" {...registerSignUp("expertiseField", { required: "Expertise is required" })} />
+                                            <select
+                                                className="w-full bg-transparent border-none outline-none text-gray-700 ml-2"
+                                                {...registerSignUp("expertiseField", { required: "Expertise is required" })}
+                                            >
+                                                <option value="" disabled selected>Select your expertise...</option>
+                                                <option value="FRONTEND">Frontend Development</option>
+                                                <option value="BACKEND">Backend Development</option>
+                                                <option value="MOBILE_DEVELOPMENT">Mobile Development</option>
+                                                <option value="DATA_SCIENCE">Data Science</option>
+                                                <option value="MACHINE_LEARNING">Machine Learning</option>
+                                                <option value="PYTHON">Python</option>
+                                                <option value="ARTIFICIAL_INTELLIGENCE">Artificial Intelligence</option>
+                                                <option value="DEVOPS">DevOps</option>
+                                            </select>
                                         </div>
                                     </div>
 

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Map, Target, Clock, ChevronRight, PlusCircle, Calendar, AlertCircle, Sparkles, Trash2, ArrowLeft, BookOpen, Brain, Palette, Bot, Settings } from 'lucide-react';
-import { getUserRoadmaps, deleteRoadmap } from '../api/roadmapService';
+import { getUserRoadmaps, deleteRoadmap, setLastOpenedRoadmap } from '../api/roadmapService';
 import logo from '../assets/logo.png';
 import './RoadmapsList.css';
 
@@ -45,6 +45,18 @@ const RoadmapsList = () => {
                 alert("Failed to delete.", err);
             }
         }
+    };
+
+    const handleOpenRoadmap = async (roadmapId) => {
+        const studentId = localStorage.getItem('studentId');
+        try {
+            // Tell backend this is now the active roadmap!
+            await setLastOpenedRoadmap(roadmapId, studentId);
+        } catch (err) {
+            console.error("Failed to update last opened status", err);
+        }
+        // Navigate to the roadmap
+        navigate(`/roadmap/${roadmapId}`);
     };
 
     const formatDate = (dateString) => {
@@ -144,7 +156,7 @@ const RoadmapsList = () => {
                                     <div
                                         key={roadmap.id}
                                         className="rl-card"
-                                        onClick={() => navigate(`/roadmap/${roadmap.id}`)}
+                                        onClick={() => handleOpenRoadmap(roadmap.id)}
                                         style={{ borderTop: `4px solid ${colorTheme}` }}
                                     >
                                         <button
