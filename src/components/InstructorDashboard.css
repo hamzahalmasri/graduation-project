@@ -154,7 +154,7 @@
 
 /* HERO BANNER */
 .inst-hero-banner {
-    background: linear-gradient(135deg, #A855F7 0%, #3B82F6 100%);
+    background: linear-gradient(135deg, #4c4fcf 0%, #6c49bc 50%, #2a2864 100%);
     border-radius: 32px;
     padding: 48px;
     color: white;
