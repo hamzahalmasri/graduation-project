@@ -1,0 +1,249 @@
+.profile-inner-content {
+    padding: 32px 48px 48px 48px;
+    max-width: 1400px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.profile-header-card {
+    background: linear-gradient(135deg, #A855F7 0%, #3B82F6 100%);
+    border-radius: 24px;
+    padding: 40px;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    color: white;
+    box-shadow: 0 10px 30px rgba(168, 85, 247, 0.2);
+    margin-bottom: 24px;
+}
+
+.profile-avatar-large {
+    width: 96px;
+    height: 96px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    border: 2px solid rgba(255, 255, 255, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    font-weight: 800;
+    letter-spacing: 1px;
+}
+
+.profile-header-info h1 {
+    font-family: 'Outfit', sans-serif;
+    font-size: 32px;
+    font-weight: 800;
+    margin: 0 0 4px 0;
+}
+
+.profile-header-info p {
+    font-size: 16px;
+    color: rgba(255, 255, 255, 0.9);
+    margin: 0;
+    font-weight: 500;
+}
+
+.profile-grid {
+    display: grid;
+    grid-template-columns: 1.8fr 1fr;
+    gap: 24px;
+}
+
+/* Individual Cards */
+.prof-card {
+    background: white;
+    border-radius: 24px;
+    padding: 32px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+    border: 1px solid #F1F5F9;
+}
+
+.prof-card-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-family: 'Outfit', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: #1E293B;
+    margin: 0 0 20px 0;
+}
+
+.prof-card-title svg {
+    color: #8B5CF6;
+}
+
+/* Text and Bio */
+.prof-bio-text {
+    color: #475569;
+    line-height: 1.7;
+    font-size: 15px;
+    margin-bottom: 24px;
+}
+
+.prof-quote-box {
+    background: #F8FAFC;
+    border-left: 3px solid #8B5CF6;
+    padding: 16px 20px;
+    border-radius: 0 12px 12px 0;
+    font-style: italic;
+    color: #64748B;
+    font-size: 14px;
+}
+
+/* Skills and Tags */
+.prof-skills-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.prof-skill-tag {
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.prof-focus-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+    background: #F8FAFC;
+    border: 1px solid #E2E8F0;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #334155;
+    flex: 1;
+    min-width: 200px;
+}
+
+/* Circular Seats Indicator */
+.prof-seats-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.prof-circular-progress {
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    margin-bottom: 20px;
+}
+
+.prof-inner-circle {
+    width: 110px;
+    height: 110px;
+    background: white;
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.02);
+}
+
+.prof-inner-circle h3 {
+    font-size: 28px;
+    font-weight: 800;
+    color: #1E293B;
+    margin: 0;
+    line-height: 1;
+}
+
+.prof-inner-circle span {
+    font-size: 10px;
+    font-weight: 700;
+    color: #94A3B8;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 4px;
+}
+
+.prof-status-badge {
+    background: #ECFDF5;
+    color: #10B981;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 8px;
+}
+
+.prof-status-badge.full {
+    background: #FEF2F2;
+    color: #EF4444;
+}
+
+/* Small Stats Grid */
+.prof-stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.prof-stat-box {
+    background: white;
+    border-radius: 20px;
+    padding: 24px;
+    border: 1px solid #F1F5F9;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.prof-stat-icon {
+    color: #8B5CF6;
+}
+
+.prof-stat-value {
+    font-size: 28px;
+    font-weight: 800;
+    color: #1E293B;
+    line-height: 1;
+}
+
+.prof-stat-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: #94A3B8;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Philosophy Dark Card */
+.prof-dark-card {
+    background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
+    color: white;
+    border: none;
+    position: relative;
+    overflow: hidden;
+}
+
+.prof-dark-card .prof-card-title {
+    color: white;
+}
+
+.prof-dark-card .prof-card-title svg {
+    color: #34D399;
+}
+
+.prof-dark-text {
+    color: #CBD5E1;
+    font-size: 14px;
+    line-height: 1.6;
+}
