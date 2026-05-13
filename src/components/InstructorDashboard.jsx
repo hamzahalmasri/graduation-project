@@ -7,7 +7,7 @@ import './StudentHomePage.css';
 import {
     getInstructorStudents,
     getLastOpenedStudentProgress,
-    getStudentActiveRoadmap, // 🚨 IMPORTED THIS TO FIX THE MATH
+    getStudentActiveRoadmap,
     dropStudentAssignment,
     sendPerformanceNote
 } from '../api/instructorDashboardService';
@@ -22,6 +22,20 @@ const InstructorDashboard = () => {
     const [noteSuccess, setNoteSuccess] = useState(false);
 
     const instructorName = localStorage.getItem('userName') || 'Instructor';
+
+    // 🚨 STILCT API VALUES AS REQUESTED BY BACKEND DEVELOPER
+    const noteTypes = [
+        { label: "Quiz Feedback 📝", value: "QUIZ_FEEDBACK" },
+        { label: "Progress Update 📈", value: "PROGRESS" },
+        { label: "General Note 💬", value: "GENERAL" }
+    ];
+
+    // Quick auto-fill suggestions
+    const suggestions = {
+        "QUIZ_FEEDBACK": ["Excellent understanding", "Great performance", "Needs more practice", "Review basics"],
+        "PROGRESS": ["Great improvement", "Consistent work", "Fast learner", "Need to work more", "Struggling with concepts"],
+        "GENERAL": ["Keep it up", "Strong communication", "Good problem solving", "Not participating much", "Not good enough"]
+    };
 
     const fetchDashboardData = useCallback(async () => {
         setIsLoading(true);
@@ -82,8 +96,9 @@ const InstructorDashboard = () => {
             setStudents(enrichedStudents);
 
             if (enrichedStudents.length > 0) {
-                setNoteForm(prev => ({ ...prev, assignmentId: enrichedStudents.id }));
+                setNoteForm(prev => ({ ...prev, assignmentId: enrichedStudents[0].id }));
             }
+
         } catch (error) {
             console.error("Dashboard Error:", error);
         } finally {
@@ -256,7 +271,7 @@ const InstructorDashboard = () => {
                                                 <div className="inst-mover-info">
                                                     <div className="inst-mover-name-row">
                                                         <h4>{assignment.student.fullName}</h4>
-                                                        <span className="inst-fire-badge"><Flame size={12} fill="currentColor" /> {Math.floor(assignment.progressPercentage)}%</span>
+                                                        <span className="inst-fire-badge"><Flame size={12} fill="currentColor" /> {Math.floor(assignment.progressPercentage / 10) + 1}</span>
                                                     </div>
                                                     <p className="inst-mover-track">{assignment.learningPath}</p>
                                                     <div className="inst-progress-track">
@@ -274,8 +289,10 @@ const InstructorDashboard = () => {
                                     <h3 className="inst-card-title">Write Performance Note</h3>
                                     <form className="inst-note-form" onSubmit={handleSendNote}>
 
-                                        <label>STUDENT</label>
+                                        <label className="label" style={{ fontSize: '12px', fontWeight: 'bold', color: '#94a3b8', textTransform: 'uppercase', marginBottom: '8px', display: 'block' }}>Student</label>
                                         <select
+                                            className="input-field"
+                                            style={{ width: '100%', padding: '12px', border: '1px solid #e2e8f0', borderRadius: '10px', marginBottom: '20px', color: '#334155' }}
                                             value={noteForm.assignmentId}
                                             onChange={(e) => setNoteForm({ ...noteForm, assignmentId: e.target.value })}
                                             required
@@ -285,32 +302,60 @@ const InstructorDashboard = () => {
                                             ))}
                                         </select>
 
-                                        <label>NOTE TYPE</label>
-                                        <select
-                                            value={noteForm.type}
-                                            onChange={(e) => setNoteForm({ ...noteForm, type: e.target.value })}
+                                        <label className="label" style={{ fontSize: '12px', fontWeight: 'bold', color: '#94a3b8', textTransform: 'uppercase', marginBottom: '8px', display: 'block' }}>Note Type</label>
+                                        <div className="type-container">
+                                            {noteTypes.map((type) => (
+                                                <div
+                                                    key={type.value}
+                                                    className={`type-btn ${noteForm.type === type.value ? 'active' : ''}`}
+                                                    data-type={type.value}
+                                                    onClick={() => setNoteForm({ ...noteForm, type: type.value })}
+                                                >
+                                                    {type.label}
+                                                </div>
+                                            ))}
+                                        </div>
+
+                                        <div className="suggestions-box">
+                                            {suggestions[noteForm.type]?.map((tagText, idx) => (
+                                                <div
+                                                    key={idx}
+                                                    className="note-tag"
+                                                    onClick={() => {
+                                                        // Prevents crashing if the combined text is too long
+                                                        const newText = tagText;
+                                                        if (newText.length <= 100) {
+                                                            setNoteForm({ ...noteForm, noteText: newText });
+                                                        }
+                                                    }}
+                                                >
+                                                    {tagText}
+                                                </div>
+                                            ))}
+                                        </div>
+
+                                        <label className="label" style={{ fontSize: '12px', fontWeight: 'bold', color: '#94a3b8', textTransform: 'uppercase', marginBottom: '8px', display: 'block' }}>Note</label>
+                                        <div className="note-area-wrapper">
+                                            <textarea
+                                                placeholder="Write your note here..."
+                                                value={noteForm.noteText}
+                                                maxLength={100}
+                                                onChange={(e) => setNoteForm({ ...noteForm, noteText: e.target.value })}
+                                                required
+                                            ></textarea>
+                                            <div className="char-count">{noteForm.noteText.length} / 100</div>
+                                        </div>
+
+                                        <button
+                                            type="submit"
+                                            className="inst-btn-submit"
+                                            style={{ width: '100%', padding: '14px', borderRadius: '12px', background: 'linear-gradient(90deg, #8a4fff 0%, #4a8cff 100%)', color: 'white', fontWeight: '600', border: 'none', cursor: 'pointer' }}
+                                            disabled={isSendingNote || students.length === 0}
                                         >
-                                            <option value="QUIZ_FEEDBACK">QUIZ_FEEDBACK</option>
-                                            <option value="PROGRESS">PROGRESS</option>
-                                            <option value="GENERAL">GENERAL</option>
-                                            <option value="WARNING">WARNING</option>
-                                            <option value="MILESTONE">MILESTONE</option>
-                                        </select>
-
-                                        <label>NOTE</label>
-                                        <textarea
-                                            placeholder="Write your note here..."
-                                            rows="3"
-                                            value={noteForm.noteText}
-                                            onChange={(e) => setNoteForm({ ...noteForm, noteText: e.target.value })}
-                                            required
-                                        ></textarea>
-
-                                        <button type="submit" className="inst-btn-submit" disabled={isSendingNote || students.length === 0}>
                                             {isSendingNote ? 'Sending...' : 'Send Note'}
                                         </button>
 
-                                        {noteSuccess && <p className="inst-success-msg">✓ Note sent successfully</p>}
+                                        {noteSuccess && <p className="inst-success-msg" style={{ color: '#10b981', fontSize: '14px', marginTop: '10px', textAlign: 'center', fontWeight: '600' }}>✓ Note sent successfully</p>}
                                     </form>
                                 </div>
                             </section>

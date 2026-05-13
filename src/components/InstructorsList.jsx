@@ -34,7 +34,7 @@ const InstructorsList = () => {
             // ✅ THE FIX: Sort by ID to find the newest assignment, ignoring old ghost requests
             if (assignmentData && assignmentData.length > 0) {
                 const sortedAssignments = assignmentData.sort((a, b) => b.id - a.id);
-                const newestAssignment = sortedAssignments;
+                const newestAssignment = sortedAssignments[0];
 
                 // Only set active if the absolute NEWEST assignment is Pending or Approved
                 if (newestAssignment.status === 'PENDING' || newestAssignment.status === 'APPROVED') {
