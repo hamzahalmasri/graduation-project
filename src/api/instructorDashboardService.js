@@ -74,3 +74,30 @@ export const getLastOpenedStudentProgress = async (studentId) => {
     if (!response.ok) throw new Error("Failed to fetch last opened progress");
     return response.json();
 };
+
+// 8. Get original Roadmap Structure for a user
+export const getStudentRoadmapStructure = async (studentId) => {
+    const response = await fetch(`${BASE_API_URL}/roadmaps/user/${studentId}`, {
+        headers: getHeaders()
+    });
+    if (!response.ok) throw new Error("Failed to fetch roadmap structure");
+    return response.json();
+};
+
+// 9. Get Detailed Step-by-Step Progress
+export const getDetailedRoadmapProgress = async (studentId, roadmapId) => {
+    const response = await fetch(`${BASE_API_URL}/progress/student/${studentId}/roadmap/${roadmapId}`, {
+        headers: getHeaders()
+    });
+    if (!response.ok) throw new Error("Failed to fetch detailed progress");
+    return response.json();
+};
+
+// 10. Get Student Progress Summary (Overall)
+export const getRoadmapProgressSummary = async (studentId, roadmapId) => {
+    const response = await fetch(`${BASE_API_URL}/progress/summary/student/${studentId}/roadmap/${roadmapId}`, {
+        headers: getHeaders()
+    });
+    if (!response.ok) throw new Error("Failed to fetch progress summary");
+    return response.json();
+};
