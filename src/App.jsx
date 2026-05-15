@@ -14,6 +14,7 @@ import InstructorsList from './components/InstructorsList';
 import InstructorDashboard from './components/InstructorDashboard';
 import InstructorStudentChat from './components/InstructorStudentChat';
 import InstructorProfile from './components/InstructorProfile';
+import MyStudents from './components/MyStudents';
 
 
 const ProtectedRoute = ({ children }) => {
@@ -64,6 +65,8 @@ function App() {
           <Route path="/messages" element={<ProtectedRoute> <InstructorStudentChat /> </ProtectedRoute>} />
 
           <Route path="/profile" element={<ProtectedRoute> <InstructorProfile /> </ProtectedRoute>} />
+
+          <Route path="/my-students" element={<ProtectedRoute> <MyStudents /> </ProtectedRoute>} />
 
         </Routes>
       </div>
