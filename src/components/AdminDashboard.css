@@ -1,0 +1,435 @@
+/* AdminDashboard.css */
+.admin-container {
+    background-color: #f4f6fa;
+    color: #2b2d42;
+    min-height: 100vh;
+    font-family: 'Inter', sans-serif;
+    padding: 30px;
+    display: flex;
+    justify-content: center;
+}
+
+.admin-main-content {
+    width: 100%;
+    max-width: 1400px;
+}
+
+/* --- HEADER --- */
+.admin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.admin-header h1 {
+    font-size: 24px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.admin-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+
+.admin-icon-btn {
+    background: none;
+    border: none;
+    color: #f43f5e;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s;
+    gap: 10px;
+}
+
+.admin-icon-btn:hover {
+    color: #2b2d42;
+}
+
+/* --- KPI TOP CARDS --- */
+.admin-kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.admin-kpi-card {
+    background-color: #ffffff;
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+}
+
+.admin-kpi-info p {
+    font-size: 13px;
+    color: #8d99ae;
+    font-weight: 600;
+    margin: 0 0 5px 0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.admin-kpi-info h2 {
+    font-size: 26px;
+    font-weight: 800;
+    margin: 0 0 5px 0;
+    color: #11132d;
+}
+
+.admin-kpi-trend {
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.admin-trend-up {
+    color: #06d6a0;
+}
+
+.admin-trend-warning {
+    color: #f97316;
+}
+
+.admin-kpi-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* --- DASHBOARD SECTION BLOCKS --- */
+.admin-section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+}
+
+.admin-section-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 16px;
+    font-weight: 700;
+    color: #11132d;
+}
+
+.admin-title-icon {
+    padding: 6px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.admin-badge-count {
+    background-color: #fef3c7;
+    color: #d97706;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 20px;
+}
+
+/* --- TABLES & LISTS CONTAINER --- */
+.admin-table-container {
+    background-color: #ffffff;
+    border-radius: 16px;
+    padding: 10px 24px;
+    margin-bottom: 30px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+    overflow-x: auto;
+}
+
+.admin-data-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+}
+
+.admin-data-table th {
+    color: #8d99ae;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    padding: 16px 10px;
+    border-bottom: 1px solid #edf2f4;
+}
+
+.admin-data-table td {
+    padding: 16px 10px;
+    font-size: 14px;
+    border-bottom: 1px solid #edf2f4;
+    vertical-align: middle;
+}
+
+.admin-student-profile {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-weight: 600;
+    color: #2b2d42;
+}
+
+.admin-avatar-circle {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.admin-status-badge {
+    background-color: #fef3c7;
+    color: #d97706;
+    padding: 4px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    display: inline-block;
+}
+
+.admin-actions-cell {
+    display: flex;
+    gap: 8px;
+}
+
+.admin-btn {
+    border: none;
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.admin-btn:hover {
+    opacity: 0.85;
+}
+
+.admin-btn-approve {
+    background-color: #4361ee;
+    color: white;
+}
+
+.admin-btn-reject {
+    background-color: #fff1f2;
+    color: #f43f5e;
+    border: 1px solid #ffe4e6;
+}
+
+/* --- TWO COLUMN SECTION --- */
+.admin-analytics-grid {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 24px;
+    margin-bottom: 30px;
+}
+
+.admin-mini-card-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.admin-mini-card {
+    background-color: #ffffff;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+}
+
+.admin-mini-card p {
+    font-size: 11px;
+    text-transform: uppercase;
+    color: #8d99ae;
+    font-weight: 700;
+    margin: 0 0 8px 0;
+}
+
+.admin-mini-card h3 {
+    font-size: 28px;
+    font-weight: 800;
+    margin: 0;
+}
+
+.admin-learning-paths-card {
+    background-color: #ffffff;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+}
+
+.admin-learning-paths-card h4 {
+    font-size: 16px;
+    margin: 0 0 24px 0;
+    font-weight: 700;
+    color: #11132d;
+}
+
+.admin-path-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+    font-size: 14px;
+}
+
+.admin-path-index {
+    width: 25px;
+    color: #8d99ae;
+    font-weight: 700;
+}
+
+.admin-path-name {
+    width: 200px;
+    font-weight: 600;
+    color: #2b2d42;
+}
+
+.admin-path-progress-container {
+    flex-grow: 1;
+    margin: 0 16px;
+}
+
+.admin-progress-bar {
+    height: 8px;
+    background-color: #f1f5f9;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.admin-progress-fill {
+    height: 100%;
+    border-radius: 4px;
+}
+
+.admin-path-stats {
+    width: 80px;
+    text-align: right;
+    font-size: 13px;
+    font-weight: 700;
+    color: #11132d;
+}
+
+/* --- LOWER KPI GRID --- */
+.admin-bottom-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    margin-bottom: 30px;
+}
+
+.admin-stat-card-line {
+    background-color: #ffffff;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+}
+
+.admin-stat-card-line p.title {
+    font-size: 13px;
+    color: #8d99ae;
+    margin: 0 0 8px 0;
+    font-weight: 600;
+}
+
+.admin-stat-card-line h2 {
+    font-size: 32px;
+    font-weight: 800;
+    margin: 0 0 8px 0;
+}
+
+.admin-stat-card-line p.subtitle {
+    font-size: 12px;
+    font-weight: 700;
+    margin: 0 0 16px 0;
+}
+
+.admin-line-indicator {
+    height: 4px;
+    background-color: #f1f5f9;
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.admin-line-indicator-fill {
+    height: 100%;
+}
+
+/* --- TIMELINE FLOW --- */
+.admin-timeline-card {
+    background-color: #ffffff;
+    border-radius: 16px;
+    padding: 30px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+}
+
+.admin-timeline-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    position: relative;
+    padding-left: 36px;
+    padding-bottom: 24px;
+}
+
+.admin-timeline-item:last-child {
+    padding-bottom: 0;
+}
+
+.admin-timeline-item:not(:last-child)::before {
+    content: '';
+    position: absolute;
+    left: 11px;
+    top: 24px;
+    bottom: 0;
+    width: 2px;
+    background-color: #edf2f4;
+}
+
+.admin-timeline-icon-dot {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background-color: #fff;
+    border: 2px solid #ddd;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+}
+
+.admin-timeline-content {
+    font-size: 14px;
+    color: #2b2d42;
+    font-weight: 600;
+}
+
+.admin-timeline-time {
+    font-size: 12px;
+    color: #8d99ae;
+    font-weight: 500;
+}

@@ -89,29 +89,39 @@ const AuthForm = () => {
         try {
             setIsLoading(true);
             const response = await loginUser({ email: data.loginEmail, password: data.loginPassword });
-            console.log("🚨 BACKEND RESPONSE:", response);
-            localStorage.setItem('isLoggedIn', 'true');
-            localStorage.setItem('studentId', response.id);
-            localStorage.setItem('instructorId', response.id);
 
-            // Grabs the real full name from your backend response
+            console.log("🚨 BACKEND RESPONSE:", response);
+
+            localStorage.setItem('isLoggedIn', 'true');
+            if (response && response.id) {
+                localStorage.setItem('studentId', response.id);
+                localStorage.setItem('instructorId', response.id);
+            }
+
             const realName = response.fullName || (response.user && response.user.fullName) || 'User';
             localStorage.setItem('userName', realName);
 
-            // 🚨 CHANGED: Strictly use accountType as requested by the backend!
-            const accountType = response.accountType;
+            let accountType = response.accountType || response.role || '';
+            let safeAccountType = accountType.toString().toUpperCase();
 
-            if (accountType) {
-                localStorage.setItem('userRole', accountType.toLowerCase());
+            // 🚨 THE FIX: Exactly matching your admin email
+            if (data.loginEmail.toLowerCase() === 'admin@roadmap.com') {
+                safeAccountType = 'ADMIN';
+            }
+
+            if (safeAccountType) {
+                localStorage.setItem('userRole', safeAccountType.toLowerCase());
             }
 
             setIsLoading(false);
 
-            // 🚨 CHANGED: Route strictly based on accountType
-            if (accountType === 'INSTRUCTOR') {
+            // 🚨 SAFE ROUTING LOGIC
+            if (safeAccountType === 'ADMIN') {
+                navigate('/admin-dashboard');
+            } else if (safeAccountType === 'INSTRUCTOR') {
                 navigate('/instructor-home');
             } else {
-                // For "STUDENT"
+                // Defaults to Student
                 navigate('/home');
             }
         } catch (error) {
