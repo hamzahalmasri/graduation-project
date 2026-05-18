@@ -61,3 +61,18 @@ export const rejectAssignment = async (id, note) => {
     if (!response.ok) throw new Error("Failed to reject assignment");
     return response.text();
 };
+
+export const getPendingInstructors = async () => {
+    const response = await fetch(`${BASE_API_URL}/admin/pending-instructors`, { headers: getHeaders() });
+    if (!response.ok) throw new Error("Failed to fetch pending instructors");
+    return response.json();
+};
+
+export const approveInstructor = async (id) => {
+    const response = await fetch(`${BASE_API_URL}/admin/users/${id}/approve`, {
+        method: 'PUT',
+        headers: getHeaders()
+    });
+    if (!response.ok) throw new Error("Failed to approve instructor");
+    return response.text();
+};

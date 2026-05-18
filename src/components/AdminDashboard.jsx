@@ -1,8 +1,14 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Users, GraduationCap, BookOpen, Clock, CheckSquare, Zap, Users2, Bell, Search, LogOut, Activity, FileText, Check, X, ActivitySquare } from 'lucide-react';
+import {
+    Users, GraduationCap, BookOpen, Clock,
+    CheckSquare, Zap, Users2, Bell, Search,
+    LogOut, Activity, FileText, Check, X,
+    ActivitySquare, Briefcase, Eye, CheckCircle
+} from 'lucide-react';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
+
 import {
     getPlatformStats,
     getPendingAssignments,
@@ -10,8 +16,11 @@ import {
     getMentorshipStatistics,
     getSystemActivity,
     approveAssignment,
-    rejectAssignment
+    rejectAssignment,
+    getPendingInstructors,
+    approveInstructor
 } from '../api/adminService';
+
 import './AdminDashboard.css';
 
 dayjs.extend(relativeTime);
@@ -25,14 +34,26 @@ const AdminDashboard = () => {
     const [mentorship, setMentorship] = useState(null);
     const [activities, setActivities] = useState([]);
 
+    // New State for Pending Instructors & Modal
+    const [pendingInstructorsList, setPendingInstructorsList] = useState([]);
+    const [selectedInstructor, setSelectedInstructor] = useState(null);
+
     const fetchAllData = useCallback(async () => {
         try {
-            const [statsRes, pendingRes, roadmapsRes, mentorshipRes, activitiesRes] = await Promise.all([
+            const [
+                statsRes,
+                pendingRes,
+                roadmapsRes,
+                mentorshipRes,
+                activitiesRes,
+                instructorsRes
+            ] = await Promise.all([
                 getPlatformStats().catch(() => null),
                 getPendingAssignments().catch(() => []),
                 getRoadmapAnalytics().catch(() => null),
                 getMentorshipStatistics().catch(() => null),
-                getSystemActivity().catch(() => [])
+                getSystemActivity().catch(() => []),
+                getPendingInstructors().catch(() => []) // Fetch Pending Instructors
             ]);
 
             setStats(statsRes);
@@ -40,12 +61,12 @@ const AdminDashboard = () => {
             setRoadmaps(roadmapsRes);
             setMentorship(mentorshipRes);
             setActivities(activitiesRes);
+            setPendingInstructorsList(instructorsRes);
         } catch (error) {
             console.error("Error fetching admin data:", error);
         }
     }, []);
 
-    // 🚨 THE FIX: Wrapped in an explicit async arrow function to satisfy strict linters
     useEffect(() => {
         const initializeDashboard = async () => {
             await fetchAllData();
@@ -72,6 +93,17 @@ const AdminDashboard = () => {
             } catch (err) {
                 alert("Failed to reject request. Check your server connection.", err.message);
             }
+        }
+    };
+
+    // --- NEW INSTRUCTOR HANDLERS ---
+    const handleInstructorApprove = async (id) => {
+        try {
+            await approveInstructor(id);
+            setSelectedInstructor(null); // close modal if open
+            fetchAllData(); // refresh dashboard
+        } catch (err) {
+            alert("Failed to approve instructor.", err.message);
         }
     };
 
@@ -108,6 +140,7 @@ const AdminDashboard = () => {
                     </div>
                 </header>
 
+                {/* --- STATS CARDS --- */}
                 <section className="admin-kpi-grid">
                     <div className="admin-kpi-card">
                         <div className="admin-kpi-info">
@@ -121,7 +154,7 @@ const AdminDashboard = () => {
                         <div className="admin-kpi-info">
                             <p>Active Students</p>
                             <h2>{stats?.activeStudents || 0}</h2>
-                            <span className="admin-kpi-trend admin-trend-up">Learning Now</span>
+                            <span className="admin-kpi-trend admin-trend-up">Students</span>
                         </div>
                         <div className="admin-kpi-icon" style={{ background: '#e0f2fe', color: '#3a86ff' }}><BookOpen size={24} /></div>
                     </div>
@@ -143,6 +176,7 @@ const AdminDashboard = () => {
                     </div>
                 </section>
 
+                {/* --- PENDING MENTORSHIP REQUESTS --- */}
                 <section className="admin-section-header">
                     <div className="admin-section-title">
                         <div className="admin-title-icon" style={{ background: '#ffedd5', color: '#f97316' }}><CheckSquare size={16} /></div>
@@ -192,6 +226,49 @@ const AdminDashboard = () => {
                     </table>
                 </div>
 
+                {/* --- NEW: PENDING INSTRUCTOR APPROVALS --- */}
+                <section className="admin-section-header">
+                    <div className="admin-section-title">
+                        <div className="admin-title-icon" style={{ background: '#e0e7ff', color: '#4f46e5' }}><GraduationCap size={16} /></div>
+                        Pending Instructor Approvals
+                    </div>
+                    <span className="admin-badge-count blue-badge">{pendingInstructorsList.length} awaiting review</span>
+                </section>
+
+                <div style={{ marginBottom: '30px' }}>
+                    {pendingInstructorsList.length === 0 ? (
+                        <div className="admin-table-container" style={{ textAlign: 'center', color: '#8d99ae', padding: '24px' }}>
+                            No pending instructor approvals.
+                        </div>
+                    ) : (
+                        pendingInstructorsList.map(instructor => (
+                            <div className="instructor-row-card" key={instructor.id}>
+                                <div className="instructor-profile-block">
+                                    <div className="admin-avatar-circle" style={{ backgroundColor: '#4f46e5', width: '40px', height: '40px', fontSize: '14px' }}>
+                                        {getInitials(instructor.fullName)}
+                                    </div>
+                                    <div className="instructor-meta">
+                                        <h4>{instructor.fullName}</h4>
+                                        <p>{instructor.email}</p>
+                                    </div>
+                                </div>
+                                <div className="instructor-actions-block">
+                                    <div className="exp-badge">
+                                        <Briefcase size={12} color="#94a3b8" /> {instructor.yearsOfExperience}y exp
+                                    </div>
+                                    <button className="admin-btn btn-view-info" onClick={() => setSelectedInstructor(instructor)}>
+                                        <Eye size={14} /> View Info
+                                    </button>
+                                    <button className="admin-btn btn-instructor-approve" onClick={() => handleInstructorApprove(instructor.id)}>
+                                        <CheckCircle size={14} /> Approve
+                                    </button>
+                                </div>
+                            </div>
+                        ))
+                    )}
+                </div>
+
+                {/* --- ROADMAP ANALYTICS --- */}
                 <section className="admin-section-header">
                     <div className="admin-section-title">
                         <div className="admin-title-icon" style={{ background: '#e0e7ff', color: '#4f46e5' }}><Zap size={16} /></div>
@@ -238,6 +315,7 @@ const AdminDashboard = () => {
                     </div>
                 </div>
 
+                {/* --- MENTORSHIP STATS --- */}
                 <section className="admin-section-header">
                     <div className="admin-section-title">
                         <div className="admin-title-icon" style={{ background: '#e6fcf5', color: '#0ca678' }}><Users2 size={16} /></div>
@@ -247,7 +325,7 @@ const AdminDashboard = () => {
 
                 <section className="admin-bottom-grid">
                     <div className="admin-stat-card-line">
-                        <p className="title">Active Mentorships</p>
+                        <p className="title">Active Assignments</p>
                         <h2 style={{ color: '#0ca678' }}>{mentorship?.activeMentorships || 0}</h2>
                         <p className="subtitle" style={{ color: '#0ca678' }}>Platform Engagement</p>
                         <div className="admin-line-indicator"><div className="admin-line-indicator-fill" style={{ width: '100%', backgroundColor: '#0ca678' }}></div></div>
@@ -266,6 +344,7 @@ const AdminDashboard = () => {
                     </div>
                 </section>
 
+                {/* --- SYSTEM ACTIVITY --- */}
                 <section className="admin-section-header">
                     <div className="admin-section-title">
                         <div className="admin-title-icon" style={{ background: '#e8f0fe', color: '#1a73e8' }}><Activity size={16} /></div>
@@ -294,6 +373,63 @@ const AdminDashboard = () => {
                 </div>
 
             </main>
+
+            {/* --- INSTRUCTOR VIEW MODAL --- */}
+            <div className={`modal-overlay ${selectedInstructor ? 'active' : ''}`} onClick={() => setSelectedInstructor(null)}>
+                <div className="modal-card" onClick={(e) => e.stopPropagation()}>
+                    <button className="modal-close-btn" onClick={() => setSelectedInstructor(null)}>
+                        <X size={14} />
+                    </button>
+
+                    {selectedInstructor && (
+                        <>
+                            <div className="modal-header-profile">
+                                <div className="modal-avatar">{getInitials(selectedInstructor.fullName)}</div>
+                                <div className="modal-title-block">
+                                    <h3>{selectedInstructor.fullName}</h3>
+                                    <p>{selectedInstructor.email}</p>
+                                    <div className="modal-exp-line">
+                                        <Briefcase size={12} color="#f59f00" /> {selectedInstructor.yearsOfExperience} years of experience
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="modal-section-label">Bio</div>
+                            <p className="modal-bio">{selectedInstructor.bio || "No bio provided."}</p>
+
+                            <div className="modal-section-label">Expertise</div>
+                            <div className="tag-container">
+                                {selectedInstructor.expertiseFields?.length > 0 ? (
+                                    selectedInstructor.expertiseFields.map((field, i) => (
+                                        <span key={i} className="tag-expertise">{field.replace('_', ' ')}</span>
+                                    ))
+                                ) : (
+                                    <span style={{ fontSize: '12px', color: '#94a3b8' }}>None provided</span>
+                                )}
+                            </div>
+
+                            <div className="modal-section-label">Skills</div>
+                            <div className="tag-container">
+                                {selectedInstructor.skills?.length > 0 ? (
+                                    selectedInstructor.skills.map((skill, i) => (
+                                        <span key={i} className="tag-skill">{skill}</span>
+                                    ))
+                                ) : (
+                                    <span style={{ fontSize: '12px', color: '#94a3b8' }}>None provided</span>
+                                )}
+                            </div>
+
+                            <div className="modal-footer-actions">
+                                <button className="admin-btn btn-modal-close" onClick={() => setSelectedInstructor(null)}>Close</button>
+                                <button className="admin-btn btn-instructor-approve" onClick={() => handleInstructorApprove(selectedInstructor.id)}>
+                                    Approve Instructor
+                                </button>
+                            </div>
+                        </>
+                    )}
+                </div>
+            </div>
+
         </div>
     );
 };

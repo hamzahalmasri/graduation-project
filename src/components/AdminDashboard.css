@@ -433,3 +433,233 @@
     color: #8d99ae;
     font-weight: 500;
 }
+
+/* --- PENDING INSTRUCTOR APPROVALS ROW ITEMS --- */
+.admin-badge-count.blue-badge {
+    background-color: #e0e7ff;
+    color: #4f46e5;
+}
+
+.instructor-row-card {
+    background-color: #ffffff;
+    border: 1px solid #edf2f4;
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-bottom: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.01);
+}
+
+.instructor-profile-block {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.instructor-meta h4 {
+    font-size: 15px;
+    font-weight: 600;
+    color: #0f172a;
+    margin: 0 0 2px 0;
+}
+
+.instructor-meta p {
+    font-size: 13px;
+    color: #8d99ae;
+    margin: 0;
+}
+
+.instructor-actions-block {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.exp-badge {
+    background-color: #f1f5f9;
+    color: #64748b;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 4px 10px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.btn-view-info {
+    background-color: #ffffff;
+    color: #334155;
+    border: 1px solid #cbd5e1;
+}
+
+.btn-instructor-approve {
+    background-color: #6366f1;
+    color: #ffffff;
+    background-image: linear-gradient(to right, #6366f1, #4f46e5);
+    border: none;
+}
+
+/* --- INSTRUCTOR MODAL OVERLAY --- */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(15, 23, 42, 0.4);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+}
+
+.modal-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.modal-card {
+    background-color: #ffffff;
+    border-radius: 16px;
+    width: 90%;
+    max-width: 440px;
+    padding: 24px;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    position: relative;
+    transform: scale(0.95);
+    transition: transform 0.2s ease;
+}
+
+.modal-overlay.active .modal-card {
+    transform: scale(1);
+}
+
+.modal-close-btn {
+    position: absolute;
+    top: 18px;
+    right: 18px;
+    background: #f1f5f9;
+    border: none;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #64748b;
+    cursor: pointer;
+}
+
+.modal-header-profile {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    margin-bottom: 18px;
+}
+
+.modal-avatar {
+    width: 48px;
+    height: 48px;
+    background-color: #6366f1;
+    color: #ffffff;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 16px;
+    box-shadow: 0 4px 6px -1px rgba(99, 102, 241, 0.2);
+}
+
+.modal-title-block h3 {
+    font-size: 16px;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0 0 2px 0;
+}
+
+.modal-title-block p {
+    font-size: 12px;
+    color: #64748b;
+    margin: 0 0 4px 0;
+}
+
+.modal-exp-line {
+    font-size: 12px;
+    font-weight: 600;
+    color: #d97706;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.modal-section-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #94a3b8;
+    letter-spacing: 0.05em;
+    margin-bottom: 6px;
+    margin-top: 16px;
+}
+
+.modal-bio {
+    font-size: 13px;
+    line-height: 1.5;
+    color: #334155;
+    margin: 0;
+}
+
+.tag-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 6px;
+}
+
+.tag-expertise {
+    background-color: #eef2ff;
+    color: #4f46e5;
+    font-size: 11px;
+    font-weight: 500;
+    padding: 5px 12px;
+    border-radius: 20px;
+}
+
+.tag-skill {
+    background-color: #f8fafc;
+    color: #475569;
+    border: 1px solid #e2e8f0;
+    font-size: 11px;
+    font-weight: 500;
+    padding: 4px 10px;
+    border-radius: 6px;
+}
+
+.modal-footer-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 24px;
+    border-top: 1px solid #f1f5f9;
+    padding-top: 16px;
+}
+
+.modal-footer-actions .admin-btn {
+    flex-grow: 1;
+    justify-content: center;
+    padding: 10px;
+    border-radius: 8px;
+}
+
+.btn-modal-close {
+    background-color: #ffffff;
+    color: #475569;
+    border: 1px solid #e2e8f0;
+}
